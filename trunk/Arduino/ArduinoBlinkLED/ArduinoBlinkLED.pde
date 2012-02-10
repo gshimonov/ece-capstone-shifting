@@ -8,32 +8,45 @@
     "1.0",
     "http://yoursite.com",
     "0000000012345678");
+    
+    int pitch;
+   
     void setup()
     {
-    // set communiation speed
-    Serial.begin(9600);
-    pinMode(LED_PIN, OUTPUT);
-    acc.powerOn();
+      // set communiation speed
+      Serial.begin(9600);
+      pinMode(LED_PIN, OUTPUT);
+      acc.powerOn();
     }
      
     void loop()
-    {
-    byte msg[0];
-    if (acc.isConnected()) {
-    int len = acc.read(msg, sizeof(msg), 1); // read data into msg variable
-    if (len > 0) {
-    if (msg[0] == 1) // compare received data
-    {
-      digitalWrite(LED_PIN,HIGH); // turn on light
-      Serial.println("high");
-    }
-    else
-    {
-      digitalWrite(LED_PIN,LOW); // turn off light
-      Serial.println("low");
-    }
-    }
-    }
-    else
-    digitalWrite(LED_PIN , LOW); // turn off light
+    {  
+      byte msg[1];
+      if (acc.isConnected()) {
+        int len = acc.read(msg, sizeof(msg), 1); // read data into msg variable
+        if (len > 0) {
+/*          pitch = msg[1];
+          if(pitch > 45) {
+            digitalWrite(LED_PIN, HIGH);
+            Serial.print("greater than 45 degrees ");
+            Serial.println(pitch);
+          }
+          else {
+            digitalWrite(LED_PIN, LOW);
+            Serial.print("less than 45 degrees ");
+            Serial.println(pitch);
+          }*/
+          pitch = msg[1];
+          if (msg[0] == 200) {
+            digitalWrite(LED_PIN, HIGH);
+            Serial.print("positive ");
+            Serial.println(pitch);
+          }
+          else if (msg[0] == 255) {
+            digitalWrite(LED_PIN, LOW);
+            Serial.print("negative ");
+            Serial.println(pitch);
+          }   
+        }
+      }
     }
