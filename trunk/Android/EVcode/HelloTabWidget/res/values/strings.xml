@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, HelloTabWidget!</string>
+    <string name="app_name">HelloTabWidget</string>
+    <string name="E_ntsup">Not Supported</string>
+    <string name="Az">Azimuth : </string>
+    <string name="Pit">Pitch : </string>
+    <string name="Roll">Roll : </string>
+    <string name="idX">X : </string>
+    <string name="idY">Y : </string>
+    <string name="idZ">Z : </string>
+</resources>
