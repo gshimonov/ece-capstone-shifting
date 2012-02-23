@@ -51,7 +51,10 @@ void setup()
 //  velocity cadence(); //...
 }
 
+
+//debug variables
 int iteration;
+int samples;
 
 void loop()
 {
@@ -67,7 +70,7 @@ void loop()
     t = millis()-start;
     iteration = iteration + 1;
   }
-  
+  samples = pitch.getCounter();
   pitchData = pitch.getAverage(); //average data in sample array and then delete info in array
   wheelData = wheel.getAverage(); //...
 //  kph = (circum/double(time))*3.6;
@@ -75,14 +78,14 @@ void loop()
 
   //calculate speed for desired power
   
-  Serial.print("time: ");
+  Serial.print("loop time: ");
   Serial.print(t);
-  Serial.print(" samples: ");
-  Serial.print(pitch.getCounter());
-  Serial.print(" iterations: ");
+  Serial.print(" loop iterations: ");
   Serial.print(iteration);
+  Serial.print(" android samples: ");
+  Serial.print(samples);
   Serial.print(" pitch: ");
   Serial.print(pitchData);
-  Serial.print(" wheel time: ");
-  Serial.println(wheelData);
+  Serial.print(" kph: ");
+  Serial.println(wheelData)  ;
 }
