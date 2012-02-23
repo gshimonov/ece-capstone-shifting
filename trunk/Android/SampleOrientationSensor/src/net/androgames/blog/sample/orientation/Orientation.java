@@ -185,7 +185,11 @@ public class Orientation extends Activity implements OrientationListener {
 
 		////////GS/////////
 		pitchReturn = pitch;
-		byte[] buffer2 = new byte[2];
+		byte[] buffer2 = new byte[2]; // dynamic allocation of buffer to be sent over USB
+									  // Byte 1: sign of pitch
+									  // Byte 2: value of pitch
+		   							  // Byte 3: wind direction
+									  // Byte 4: wind value		
 		byte one = 1;
 		byte zero = 0;
 		
@@ -208,6 +212,8 @@ public class Orientation extends Activity implements OrientationListener {
 			buffer2[0] = (byte)255; //255 is a code signifying angle is negative, needs to be converted
 			buffer2[1] = (byte)Math.abs(pitch);
 		}
+		buffer2[2] = (byte)214; //fake wind direction value
+		buffer2[3] = (byte)156; //fake wind value
 		
 		//output via USB
 		if (mOutputStream != null) {
@@ -266,7 +272,7 @@ public class Orientation extends Activity implements OrientationListener {
 //	}
 	
 	public void blinkLED(View v){
-		byte[] buffer = new byte[2];
+		byte[] buffer = new byte[4]; 
 		byte one = 1;
 		byte zero = 0;
 		
