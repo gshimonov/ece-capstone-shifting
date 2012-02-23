@@ -3,9 +3,11 @@
       package="net.androgames.blog.sample.orientation"
       android:versionCode="1"
       android:versionName="1.0">
+      
     <application android:label="@string/app_name">
         <activity android:name=".Orientation"
-                  android:label="@string/app_name">
+                  android:label="@string/app_name"
+                  android:theme="@android:style/Theme.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -17,7 +19,12 @@
     	 		android:resource="@xml/accessory_filter"/>
         </activity>
         
+        <activity android:name="SettingsActivity"></activity>
+		<activity android:name="Accelerometer"></activity>
+		<activity android:name="Orientation"></activity>
+		
         <uses-library android:name="com.android.future.usb.accessory"></uses-library>
+        
 
     </application>
     <uses-sdk android:minSdkVersion="10" />

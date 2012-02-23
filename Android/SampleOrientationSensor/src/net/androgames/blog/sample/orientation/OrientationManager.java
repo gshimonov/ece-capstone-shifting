@@ -91,7 +91,7 @@ public class OrientationManager {
 			sensor = sensors.get(0);
 			running = sensorManager.registerListener(
 					sensorEventListener, sensor, 
-					SensorManager.SENSOR_DELAY_NORMAL);
+					SensorManager.SENSOR_DELAY_FASTEST);
 			listener = orientationListener;
 		}
 	}
