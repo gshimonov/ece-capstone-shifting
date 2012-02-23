@@ -2,7 +2,8 @@
   #include <Usb.h>
   #include <AndroidAccessory.h>
   #include <androidData.h>
-
+  #include <rpm.h>
+  
 // Increase ADC sample rate to 1us per call
 #define FASTADC 1
 
@@ -13,6 +14,9 @@
 #ifndef sbi
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 #endif
+
+#define debounceTime 50
+#define wheelPin     0
        
   AndroidAccessory acc("Manufacturer",
   "Model",
@@ -22,11 +26,13 @@
   "0000000012345678");
 
   androidData pitch(1);
+  rpm wheel(wheelPin, debounceTime);
 
 double start = 0;
 double t = 0;
 double averagingTime = 2000; // 2 seconds
 double pitchData = 0;
+double wheelData = 0;
 
 void setup()
 {
@@ -45,29 +51,38 @@ void setup()
 //  velocity cadence(); //...
 }
 
-
+int iteration;
 
 void loop()
 {
+  iteration = 0;
   t = 0;
   start = millis();
   //measure parameters
   while(t < averagingTime)
   {
     pitch.sample();
-//    wheel.sample();
+    wheel.sample();
 //    cadence.sample();
     t = millis()-start;
+    iteration = iteration + 1;
   }
-  Serial.print("time: ");
-  Serial.print(t);
-  Serial.print(" samples: ");
-  Serial.println(pitch.getCounter());
   
   pitchData = pitch.getAverage(); //average data in sample array and then delete info in array
-//  wheelData = wheel.getAverage(); //...
+  wheelData = wheel.getAverage(); //...
+//  kph = (circum/double(time))*3.6;
 //  cadenceData = cadence.getAverage(); //...
 
   //calculate speed for desired power
-  Serial.println(pitchData);
+  
+  Serial.print("time: ");
+  Serial.print(t);
+  Serial.print(" samples: ");
+  Serial.print(pitch.getCounter());
+  Serial.print(" iterations: ");
+  Serial.print(iteration);
+  Serial.print(" pitch: ");
+  Serial.print(pitchData);
+  Serial.print(" wheel time: ");
+  Serial.println(wheelData);
 }
