@@ -17,6 +17,7 @@
 
 #define debounceTime 50
 #define wheelPin     0
+#define pedalPin     1
        
   AndroidAccessory acc("Manufacturer",
   "Model",
@@ -27,12 +28,14 @@
 
   androidData pitch(1);
   rpm wheel(wheelPin, debounceTime);
+  rpm pedal(pedalPin, debounceTime);
 
 double start = 0;
 double t = 0;
 double averagingTime = 2000; // 2 seconds
 double pitchData = 0;
 double wheelData = 0;
+double pedalData = 0;
 
 void setup()
 {
@@ -66,15 +69,16 @@ void loop()
   {
     pitch.sample();
     wheel.sample();
-//    cadence.sample();
+    pedal.sample();
     t = millis()-start;
     iteration = iteration + 1;
   }
   samples = pitch.getCounter();
   pitchData = pitch.getAverage(); //average data in sample array and then delete info in array
   wheelData = wheel.getAverage(); //...
+  pedalData = pedal.getAverage(); //...
 //  kph = (circum/double(time))*3.6;
-//  cadenceData = cadence.getAverage(); //...
+
 
   //calculate speed for desired power
   
@@ -87,5 +91,7 @@ void loop()
   Serial.print(" pitch: ");
   Serial.print(pitchData);
   Serial.print(" kph: ");
-  Serial.println(wheelData)  ;
+  Serial.print(0.12582*wheelData); //0.12582 kph/rpm using 2097mm wheel
+  Serial.print(" Pedal RPM: ");
+  Serial.println(pedalData);
 }
