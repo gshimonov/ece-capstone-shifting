@@ -48,15 +48,19 @@
 			    android:layout_height="wrap_content" 
 			    android:text="@string/E_ntsup"/>
     	</TableRow>
-
-    	<ToggleButton
-    	    android:id="@+id/toggleButtonLED"
-    	    android:layout_width="500dp"
-    	    android:layout_height="172dp"
-    	    android:layout_marginTop="50dp"
-    	    android:onClick="blinkLED"
-    	    android:text="@+id/ToggleButton"
-    	    android:textSize="50dp" />
+    	
+    	<TableRow>
+			<TextView 
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content" 
+			    android:gravity="right"
+			    android:text="@string/buffer1"/>
+			<TextView 
+				android:id="@+id/buffer11"
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content" 
+			    android:text="@string/E_ntsup"/>
+    	</TableRow>
     
     </TableLayout>
     

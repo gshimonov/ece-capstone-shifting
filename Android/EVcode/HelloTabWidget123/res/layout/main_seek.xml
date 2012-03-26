@@ -14,7 +14,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/contentd"
-            android:src="@drawable/rider1" />
+            android:src="@drawable/biker0"
+            android:tint="#ffd700"
+            android:layout_marginTop="27dp" />
 
         <SeekBar
             android:id="@+id/seekbar"
@@ -22,26 +24,27 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:layout_marginBottom="52dp" />
+            
+             />
+
+<!--         <TextView -->
+<!--             android:id="@+id/textViewProgress" -->
+<!--             android:layout_width="wrap_content" -->
+<!--             android:layout_height="wrap_content" -->
+<!--             android:layout_below="@+id/seekbar" -->
+<!--             android:layout_alignParentLeft="true" -->
+<!--             android:layout_marginLeft="27dp" -->
+<!--             android:text="@string/idprogress" -->
+<!--             android:textAppearance="?android:attr/textAppearanceLarge" /> -->
 
         <TextView
             android:id="@+id/textViewProgress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/seekbar"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="27dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="50dp"
             android:text="@string/idprogress"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <TextView
-            android:id="@+id/textViewAction"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/textViewProgress"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="20dp"
-            android:text="@string/idaction"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
     </RelativeLayout>

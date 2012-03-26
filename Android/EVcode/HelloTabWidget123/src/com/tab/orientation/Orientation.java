@@ -12,11 +12,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.android.future.usb.UsbAccessory;
@@ -28,7 +28,7 @@ import com.tab.R;
  * @author antoine vianey
  * under GPL v3 : http://www.gnu.org/licenses/gpl-3.0.html
  */
-public class Orientation extends Activity implements Orientation_Listener {
+public class Orientation extends Activity implements Orientation_Listener, Runnable {
 
 	// TAG is used to debug in Android logcat console
 	private static final String TAG = "ArduinoAccessory";
@@ -39,8 +39,9 @@ public class Orientation extends Activity implements Orientation_Listener {
 	private PendingIntent mPermissionIntent;
 	private boolean mPermissionRequestPending;
 	private ToggleButton buttonLED;
+	float pitcher;
 
-	
+	TextView mResponseField;
 	UsbAccessory mAccessory;
 	ParcelFileDescriptor mFileDescriptor;
 	FileInputStream mInputStream;
@@ -51,7 +52,16 @@ public class Orientation extends Activity implements Orientation_Listener {
 		
 	private static Context CONTEXT;
 	
-	private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+		setupbroadcaster();
+        setContentView(R.layout.main_orient);
+        CONTEXT = this;
+        mResponseField = (TextView)findViewById(R.id.buffer11);
+
+    }
+    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
@@ -76,10 +86,7 @@ public class Orientation extends Activity implements Orientation_Listener {
 		}
 	};
 	
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        
+	public void setupbroadcaster(){
         mUsbManager = UsbManager.getInstance(this);
 		mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
@@ -90,13 +97,7 @@ public class Orientation extends Activity implements Orientation_Listener {
 			mAccessory = (UsbAccessory) getLastNonConfigurationInstance();
 			openAccessory(mAccessory);
 		}
-		
-        setContentView(R.layout.main_orient);
-        CONTEXT = this;
-        buttonLED = (ToggleButton) findViewById(R.id.toggleButtonLED);
-    }
-    
-    
+	}
     
 	@Override
 	public Object onRetainNonConfigurationInstance() {
@@ -107,8 +108,6 @@ public class Orientation extends Activity implements Orientation_Listener {
 		}
 	}
     
-    
-	
 	//public void onResume() {
 	protected void onResume() {
 		super.onResume();
@@ -137,23 +136,38 @@ public class Orientation extends Activity implements Orientation_Listener {
 		}
 	}
 }
-	
-	
-	
-    
 
-/*    protected void onResume() {
-    	super.onResume();
-    	if (OrientationManager.isSupported()) {
-    		OrientationManager.startListening(this);
-    	}
-    }*/
     	
     @Override
     public void onPause() {
     	super.onPause();
-    	closeAccessory();
     }
+	private void openAccessory(UsbAccessory accessory) {
+		mFileDescriptor = mUsbManager.openAccessory(accessory);
+		if (mFileDescriptor != null) {
+			mAccessory = accessory;
+			FileDescriptor fd = mFileDescriptor.getFileDescriptor();
+			mInputStream = new FileInputStream(fd);
+			mOutputStream = new FileOutputStream(fd);
+			Log.d(TAG, "accessory opened");
+			Thread thread = new Thread(null, this, "america");
+			thread.start();
+		} else {
+			Log.d(TAG, "accessory open fail");
+		}
+	}
+
+	private void closeAccessory() {
+		try {
+			if (mFileDescriptor != null) {
+				mFileDescriptor.close();
+			}
+		} catch (IOException e) {
+		} finally {
+			mFileDescriptor = null;
+			mAccessory = null;
+		}
+	}
     
 	
     protected void onDestroy() {
@@ -178,136 +192,72 @@ public class Orientation extends Activity implements Orientation_Listener {
 				String.valueOf(pitch));
 		((TextView) findViewById(R.id.roll)).setText(
 				String.valueOf(roll));
+		pitcher=pitch;
 
-		////////GS/////////
-		pitchReturn = pitch;
+		
+	}
+	
+	public void run() {
+		int ret = 0;
+		byte[] buffer = new byte[25];
+		int i;
 		byte[] buffer2 = new byte[2];
-		byte one = 1;
-		byte zero = 0;
-		
-		/*if(buttonLED.isChecked()){
-			//buffer[0]=(byte)0; // button says on, light is off
-			buffer[0]=zero; // button says on, light is off
-			buffer[1]=(byte)pitchReturn;
-		}
-		else {
-			buffer[0]=one;
-			buffer[1]=(byte)101;
-			
-			//buffer[0]=(byte)1; // button says off, light is on
-		}
-		*/
-		if (pitch >= 0) {
-			buffer2[0] = (byte)200; //200 is a code signifying angle is positive, no conversion necessary
-			buffer2[1]=(byte)pitch;
-		} else {
-			buffer2[0] = (byte)255; //255 is a code signifying angle is negative, needs to be converted
-			buffer2[1] = (byte)Math.abs(pitch);
-		}
-		
-		//output via USB
-		if (mOutputStream != null) {
+		int j;
+ 
+		while (true) { // read data
 			try {
-				mOutputStream.write(buffer2);
-				////
-				//mOutputStream.write(test);
-				////
+				ret = mInputStream.read(buffer);
 			} catch (IOException e) {
-				Log.e(TAG, "write failed", e);
+				break;
 			}
-		}
-		
-	}
-	
-	private void openAccessory(UsbAccessory accessory) {
-		mFileDescriptor = mUsbManager.openAccessory(accessory);
-		if (mFileDescriptor != null) {
-			mAccessory = accessory;
-			FileDescriptor fd = mFileDescriptor.getFileDescriptor();
-			mInputStream = new FileInputStream(fd);
-			mOutputStream = new FileOutputStream(fd);
-			Log.d(TAG, "accessory opened");
-		} else {
-			Log.d(TAG, "accessory open fail");
-		}
-	}
+ 
+			i = 0;
+			while (i < ret) {
+				int len = ret - i;
+				if (len >= 1) {
+					
+					Message m = Message.obtain(mHandler);
+					int value = (int)buffer[i];
+					// 'f' is the flag, use for your own logic
+					// value is the value from the arduino
+					m.obj = new ValueMsg('w', value,i,ret);
+					mHandler.sendMessage(m);
+				}
+				i += 1; // number of bytes sent from arduino
+			}
+			j=0;
+			while(j < 100){
+			if (pitcher >= 0) {
+				buffer2[0] = (byte)200; //200 is a code signifying angle is positive, no conversion necessary
+				buffer2[1]=(byte)pitcher;
+			} else {
+				buffer2[0] = (byte)255; //255 is a code signifying angle is negative, needs to be converted
+				buffer2[1] = (byte)Math.abs(pitcher);
+			}
+			//output via USB
+			if (mOutputStream != null) {
+				try {
+					mOutputStream.write(buffer2);
 
-	private void closeAccessory() {
-		try {
-			if (mFileDescriptor != null) {
-				mFileDescriptor.close();
+				} catch (IOException e) {
+					Log.e(TAG, "write failed", e);
+				}
 			}
-		} catch (IOException e) {
-		} finally {
-			mFileDescriptor = null;
-			mAccessory = null;
-		}
-	}
-	
-//	public void sendCommand(byte command, byte target, int value) {
-//		byte[] buffer = new byte[3];
-//		if (value > 255)
-//			value = 255;
-//
-//		buffer[0] = command;
-//		buffer[1] = target;
-//		buffer[2] = (byte) value;
-//		if (mOutputStream != null && buffer[1] != -1) {
-//			try {
-//				mOutputStream.write(buffer);
-//			} catch (IOException e) {
-//				Log.e(TAG, "write failed", e);
-//			}
-//		}
-//	}
-	
-	public void blinkLED(View v){
-		byte[] buffer = new byte[2];
-		byte one = 1;
-		byte zero = 0;
-		
-		if(buttonLED.isChecked()){
-			//buffer[0]=(byte)0; // button says on, light is off
-			buffer[0]=zero; // button says on, light is off
-			buffer[1]=(byte)pitchReturn;
-		}
-		else {
-			buffer[0]=one;
-			buffer[1]=(byte)101;
+			j++;
+			}
 			
-			//buffer[0]=(byte)1; // button says off, light is on
 		}
-		if (mOutputStream != null) {
-			try {
-				mOutputStream.write(buffer);
-				////
-				//mOutputStream.write(test);
-				////
-			} catch (IOException e) {
-				Log.e(TAG, "write failed", e);
-			}
+		
+	}
+	Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			ValueMsg t = (ValueMsg) msg.obj;
+			// this is where you handle the data you sent. You get it by calling the getReading() function
+			mResponseField.setText(" "+t.getReading());
 		}
-	}
-
-
-	@Override
-	public void onBottomUp() {
-		Toast.makeText(this, "Bottom UP", 1000).show();
-	}
-
-	@Override
-	public void onLeftUp() {
-		Toast.makeText(this, "Left UP", 1000).show();
-	}
-
-	@Override
-	public void onRightUp() {
-		Toast.makeText(this, "Right UP", 1000).show();
-	}
-
-	@Override
-	public void onTopUp() {
-		Toast.makeText(this, "Top UP", 1000).show();
-	}
+	};
+	
+	
     
 }

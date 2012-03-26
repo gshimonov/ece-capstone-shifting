@@ -12,7 +12,7 @@ import com.tab.R;
 public class Seek extends Activity implements OnSeekBarChangeListener{
 	private SeekBar bar;
 	private int progression;
-	private TextView textProgress,textAction;
+	private TextView textProgress;
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -27,9 +27,10 @@ public class Seek extends Activity implements OnSeekBarChangeListener{
         // make text label for progress value
         textProgress = (TextView)findViewById(R.id.textViewProgress);
         // make text label for action
-        textAction = (TextView)findViewById(R.id.textViewAction);
+   
         ImageView image = (ImageView) findViewById(R.id.imageview);
-        image.setImageResource(R.drawable.rider1);
+        bar.setProgress(1);
+
 
     }
 
@@ -41,25 +42,45 @@ public class Seek extends Activity implements OnSeekBarChangeListener{
     	// change progress text label with current seekbar value
     	textProgress.setText("The value is: "+progress);
     	// change action text label to changing
-    	textAction.setText("changing");
+
     	progression=bar.getProgress();
-    	if (progression>67){
-    		image.setImageResource(R.drawable.rider3);
-    	}
     	
-    	else if (progression<67&&progression>33){
-    		image.setImageResource(R.drawable.rider2);
+    	if (progression>90){
+    		image.setImageResource(R.drawable.biker45);
     	}
-    	
-    	else if (progression<33){
-    		image.setImageResource(R.drawable.rider1);
+    	else if (progression>80&&progression<90){
+    		image.setImageResource(R.drawable.biker40);
+    	}
+    	else if (progression>70&&progression<80){
+    		image.setImageResource(R.drawable.biker35);
+    	}
+    	else if (progression>60&&progression<70){
+    		image.setImageResource(R.drawable.biker30);
+    	}
+    	else if (progression>50&&progression<60){
+    		image.setImageResource(R.drawable.biker25);
+    	}
+    	else if (progression>40&&progression<50){
+    		image.setImageResource(R.drawable.biker20);
+    	}
+    	else if (progression>30&&progression<40){
+    		image.setImageResource(R.drawable.biker15);
+    	}
+    	else if (progression>20&&progression<30){
+    		image.setImageResource(R.drawable.biker10);
+    	}
+    	else if (progression>10&&progression<20){
+    		image.setImageResource(R.drawable.biker5);
+    	}
+    	else if (progression<10){
+    		image.setImageResource(R.drawable.biker0);
     	}
     }
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
     	// TODO Auto-generated method stub
-    	textAction.setText("starting to track touch");
+
 
     }
 
@@ -68,7 +89,6 @@ public class Seek extends Activity implements OnSeekBarChangeListener{
     	// TODO Auto-generated method stub
 
     	seekBar.setSecondaryProgress(seekBar.getProgress());
-    	textAction.setText("ended tracking touch");
     	
     }
 
