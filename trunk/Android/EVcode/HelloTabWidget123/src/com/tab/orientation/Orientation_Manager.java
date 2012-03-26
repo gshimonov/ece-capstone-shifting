@@ -29,14 +29,6 @@ public class Orientation_Manager {
 	// GS Storing roll value
 	public float rollReturn;
 	
-	/** Sides of the phone */
-	enum Side {
-		TOP,
-		BOTTOM,
-		LEFT,
-		RIGHT;
-	}
-	
 	/**
 	 * Returns true if the manager is listening to orientation changes
 	 */
@@ -101,14 +93,9 @@ public class Orientation_Manager {
 	 */
 	private static SensorEventListener sensorEventListener = 
 		new SensorEventListener() {
-		
-		/** The side that is currently up */
-		private Side currentSide = null;
-		private Side oldSide = null;
 		private float azimuth;
 		private float pitch;
 		private float roll;
-		public float rollReturn2;
 		
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 		
@@ -118,41 +105,6 @@ public class Orientation_Manager {
 			pitch = event.values[1]; 	// pitch
 			roll = event.values[2];		// roll
 			
-			//GS
-			rollReturn2 = event.values[2];
-			
-			
-			if (pitch < -45 && pitch > -135) {
-				// top side up
-				currentSide = Side.TOP;
-			} else if (pitch > 45 && pitch < 135) {
-				// bottom side up
-				currentSide = Side.BOTTOM;
-			} else if (roll > 45) {
-				// right side up
-				currentSide = Side.RIGHT;
-			} else if (roll < -45) {
-				// left side up
-				currentSide = Side.LEFT;
-			}
-			
-			if (currentSide != null && !currentSide.equals(oldSide)) {
-				switch (currentSide) {
-					case TOP : 
-						listener.onTopUp();
-						break;
-					case BOTTOM : 
-						listener.onBottomUp();
-						break;
-					case LEFT: 
-						listener.onLeftUp();
-						break;
-					case RIGHT: 
-						listener.onRightUp();
-						break;
-				}
-				oldSide = currentSide;
-			}
 			
 			// forwards orientation to the OrientationListener
 			listener.onOrientationChanged(azimuth, pitch, roll);
