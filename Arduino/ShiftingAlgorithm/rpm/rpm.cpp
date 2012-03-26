@@ -1,24 +1,11 @@
-
 #include <rpm.h>
-#include <Max3421e.h>
-#include <Usb.h>
-#include <AndroidAccessory.h>
-#include <androidData.h>
-
-#if defined(ARDUINO) && ARDUINO >= 100
-#include "Arduino.h"	// for digitalRead, digitalWrite, etc
-#else
-#include "WProgram.h"
-#endif
-
-extern AndroidAccessory acc;
 
 rpm::rpm(int analogPin, unsigned long debounceTime)
 	: analogPin(analogPin),
 	  counter(0),
 	  data(0),
 	  sumSpeed(0),
-	  kph(0),
+	  revPerMin(0),
 	  lastPulse(0),
 	  time(0),
 	  debounceTime(debounceTime),
@@ -39,16 +26,13 @@ void rpm::sample(void)
 		{
 			time = pulseTime;
 			lastPulse = now;
-			kph = (2097/(double)time)*3.6;
-			if(kph > 136.97424) //max speed 85 mph
+			revPerMin = (1/(double)time)*60000;
+			if(revPerMin > 1088.61) //corresponds to 85 mph using 2097mm wheel,
+									//if magnet is not moving and lined up with coil
 			{
-				kph = 0;
+				revPerMin = 0;
 			}
-			/*if(time < 55) //~55ms corresponds to ~85 mph
-			{
-				time = 1000000000; //time is inverse of speed, not moving -> time between rotation is infinite
-			}*/
-			sumSpeed = kph + sumSpeed;
+			sumSpeed = revPerMin + sumSpeed;
 			counter += 1;
 		}
 	}
@@ -60,10 +44,6 @@ double rpm::getAverage(void)
 	temp = sumSpeed/(double)counter;
 	sumSpeed = 0;
 	counter = 0;
-	//send data to android
-
-	
-	
 	return temp;
 }
 

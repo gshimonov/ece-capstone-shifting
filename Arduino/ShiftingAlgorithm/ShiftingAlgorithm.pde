@@ -79,6 +79,12 @@ void loop()
   pedalData = pedal.getAverage(); //...
 //  kph = (circum/double(time))*3.6;
 
+if(acc.isConnected())
+{
+	byte msg[1];
+	msg[0]=0.12582*wheelData;
+	acc.write(msg,1);
+}
 
   //calculate speed for desired power
   
