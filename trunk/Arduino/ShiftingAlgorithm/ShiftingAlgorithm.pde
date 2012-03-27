@@ -3,6 +3,8 @@
   #include <AndroidAccessory.h>
   #include <androidData.h>
   #include <rpm.h>
+  #include <forceWind.h>
+  #include <forces.h>
   
 // Increase ADC sample rate to 1us per call
 #define FASTADC 1
@@ -18,6 +20,7 @@
 #define debounceTime 50
 #define wheelPin     0
 #define pedalPin     1
+#define degToRad     0.0174532925f
        
   AndroidAccessory acc("Manufacturer",
   "Model",
@@ -29,6 +32,9 @@
   androidData pitch(1);
   rpm wheel(wheelPin, debounceTime);
   rpm pedal(pedalPin, debounceTime);
+  forceWind wind;
+  forces rollingResistance(80.0); // 80.0: dummy weight (person + bike)
+  forces slope(80.0); // 80.0: dummy weight (person + bike)
 
 double start = 0;
 double t = 0;
@@ -36,6 +42,10 @@ double averagingTime = 2000; // 2 seconds
 double pitchData = 0;
 double wheelData = 0;
 double pedalData = 0;
+double fWindData = 0;
+double fRlData = 0; //force due to rolling resistance
+double fSlData = 0; //force due to 
+double grade = 0;
 
 void setup()
 {
@@ -74,7 +84,8 @@ void loop()
     iteration = iteration + 1;
   }
   samples = pitch.getCounter();
-  pitchData = pitch.getAverage(); //average data in sample array and then delete info in array
+  pitchData = -pitch.getAverage(); //average data in sample array and then delete info in array
+                                   //sign change for correctness
   wheelData = wheel.getAverage(); //...
   pedalData = pedal.getAverage(); //...
 //  kph = (circum/double(time))*3.6;
@@ -88,6 +99,12 @@ if(acc.isConnected())
 
   //calculate speed for desired power
   
+  grade = tan(pitchData*degToRad); //get grade by computing tangent of pitch (in radians)
+  
+  fWindData = wind.fWind(5.0);
+  fRlData = rollingResistance.fRollingResistance();
+  fSlData = slope.fSlope(grade);
+  
   Serial.print("loop time: ");
   Serial.print(t);
   Serial.print(" loop iterations: ");
@@ -99,5 +116,13 @@ if(acc.isConnected())
   Serial.print(" kph: ");
   Serial.print(0.12582*wheelData); //0.12582 kph/rpm using 2097mm wheel
   Serial.print(" Pedal RPM: ");
-  Serial.println(pedalData);
+  Serial.print(pedalData);
+  Serial.print(" fWind: ");
+  Serial.print(fWindData);
+  Serial.print(" grade: ");
+  Serial.print(grade);
+  Serial.print(" fRl ");
+  Serial.print(fRlData);
+  Serial.print(" fSl ");
+  Serial.println(fSlData);
 }
