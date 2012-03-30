@@ -5,6 +5,7 @@
   #include <rpm.h>
   #include <forceWind.h>
   #include <forces.h>
+  #include <calculateVelocity.h>
   
 // Increase ADC sample rate to 1us per call
 #define FASTADC 1
@@ -21,6 +22,7 @@
 #define wheelPin     0
 #define pedalPin     1
 #define degToRad     0.0174532925f
+#define windConstants 0.3165f
        
   AndroidAccessory acc("Manufacturer",
   "Model",
@@ -35,6 +37,7 @@
   forceWind wind;
   forces rollingResistance(80.0); // 80.0: dummy weight (person + bike)
   forces slope(80.0); // 80.0: dummy weight (person + bike)
+  calculateVelocity cv;
 
 double start = 0;
 double t = 0;
@@ -42,10 +45,11 @@ double averagingTime = 2000; // 2 seconds
 double pitchData = 0;
 double wheelData = 0;
 double pedalData = 0;
-double fWindData = 0;
-double fRlData = 0; //force due to rolling resistance
-double fSlData = 0; //force due to 
+double fWind = 0; // force due to wind resistance
+double fRollingRes = 0; //force due to rolling resistance
+double fSlope = 0; //force due to 
 double grade = 0;
+double desiredVelocity = 0;
 
 void setup()
 {
@@ -101,9 +105,11 @@ if(acc.isConnected())
   
   grade = tan(pitchData*degToRad); //get grade by computing tangent of pitch (in radians)
   
-  fWindData = wind.fWind(5.0);
-  fRlData = rollingResistance.fRollingResistance();
-  fSlData = slope.fSlope(grade);
+  fWind = wind.fWind(5.0); // plug in actual velocity in meters/second
+  fRollingRes = rollingResistance.fRollingResistance();
+  fSlope = slope.fSlope(grade);
+  desiredVelocity = cv.getVelocity(250, 0.4, windConstants, fSlope, fRollingRes);
+  
   
   Serial.print("loop time: ");
   Serial.print(t);
@@ -118,11 +124,11 @@ if(acc.isConnected())
   Serial.print(" Pedal RPM: ");
   Serial.print(pedalData);
   Serial.print(" fWind: ");
-  Serial.print(fWindData);
+  Serial.print(fWind);
   Serial.print(" grade: ");
   Serial.print(grade);
   Serial.print(" fRl ");
-  Serial.print(fRlData);
+  Serial.print(fRollingRes);
   Serial.print(" fSl ");
-  Serial.println(fSlData);
+  Serial.println(fSlope);
 }
