@@ -1,5 +1,5 @@
-
-#include <servo.h>
+#include <gears.h>
+#include <Servo.h>
 
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"	// for digitalRead, digitalWrite, etc
@@ -7,11 +7,14 @@
 #include "WProgram.h"
 #endif
 
+extern Servo myServo;
+
 gears::gears(int servoPin)
 	: servoPin(servoPin),
-	  frontalArea(.5), //m^2
-      dragCoefficient(.5), //constant
+	  frontalArea(0.4), //m^2
+      dragCoefficient(0.5), //constant
 	  airDensity(1.226), //kg/m^3
+	  bikeWeight(10),
 	  riderWeight(83), //kg
 	  rollingCoefficient(.004), //constant
 	  desiredCadence(95), // rev/min, multiply by 60 for SI units
@@ -19,106 +22,117 @@ gears::gears(int servoPin)
 	  currentGear(0)
 {
 	  //initialize upshift array
-	  upshift[0] = 34;
-	  upshift[1] = 50;
-	  upshift[2] = 64;
-	  upshift[3] = 83;
-	  upshift[4] = 99;
-	  upshift[5] = 115;
-	  upshift[6] = 129;
+	  upshift[0] = 38;
+	  upshift[1] = 53;
+	  upshift[2] = 68;
+	  upshift[3] = 85;
+	  upshift[4] = 101;
+	  upshift[5] = 119;
+	  upshift[6] = 132;
 	  
 	  //initialize downshift array
-	  downshift[0] = 10;
-	  downshift[1] = 24;
-	  downshift[2] = 40;
-	  downshift[3] = 56;
-	  downshift[4] = 73;
-	  downshift[5] = 91;
-	  downshift[6] = 107;
+	  downshift[0] = 20;
+	  downshift[1] = 35;
+	  downshift[2] = 51;
+	  downshift[3] = 67;
+	  downshift[4] = 85;
+	  downshift[5] = 100;
+	  downshift[6] = 117;
 	  
-	  myservo.attach(9); // attaches the servo on pin 9 to the servo object
-	  myservo.write(downshift[0]);
+	  ratios[0] = 1;
+	  ratios[1] = 1.3;
+	  ratios[2] = 1.48;
+	  ratios[3] = 1.69;
+	  ratios[4] = 1.92;
+	  ratios[5] = 2.2;
+	  ratios[6] = 2.5;
+	  ratios[7] = 3.25;
+	  
+	  myServo.attach(servoPin); // attaches the servo on pin "servoPin" to the servo object
+	  myServo.write(downshift[0]);
 }
 
 //functions that change parameters
-void changeFrontalArea(double input)
+void gears::changeFrontalArea(double input)
 {
 	frontalArea = input;
 }
-void changeDragCoefficient(double input)
+void gears::changeDragCoefficient(double input)
 {
 	dragCoefficient = input;
 }
-void changeAirDensity(double input)
+void gears::changeAirDensity(double input)
 {
 	airDensity = input;
 }
-void changeBikeWeight(double input)
+void gears::changeBikeWeight(double input)
 {
 	bikeWeight = input;
 }
-void changeRiderWeight(double input)
+void gears::changeRiderWeight(double input)
 {
 	riderWeight = input;
 }
-void changeRollingCoefficient(double input)
+void gears::changeRollingCoefficient(double input)
 {
 	rollingCoefficient = input;
 }
-void changePitch(double input)
-{
-	pitch = input;
-}
-void changeDesiredCadence(double input)
+void gears::changeDesiredCadence(double input)
 {
 	desiredCadence = input;
 }
-void changeDesiredPower(double input)
+void gears::changeDesiredPower(double input)
 {
 	desiredPower = input;
 }
 
+//debug code that goes through each gear
 //read and write gear position
-void sweepGears(void)
+void gears::sweepGears(void)
 {
 	for(int i = 0; i <= 6; i++)
 	  {
-	    myservo.write(upshift[i]);
-	    Serial.println(myservo.read());
+	    myServo.write(upshift[i]);
+	    Serial.println(myServo.read());
 	    currentGear = i + 2;
 	    delay(1000);
 	  }
 	  delay(2000);
 	  for(int i = 6; i >= 0; i--)
 	  {
-	    myservo.write(downshift[i]);
-	    Serial.println(myservo.read());
+	    myServo.write(downshift[i]);
+	    Serial.println(myServo.read());
 	    currentGear = i+1;
 	    delay(1000);
 	  }
 	  delay(2000);
 }
 
-int readGear(void)
+int gears::readGear(void)
 {
-	return myservo.read();
+	return myServo.read();
 }
 
-void changeGear(int gear)
+void gears::changeGear(int gear)
 {
 	if(gear < currentGear)
 	{
-		myservo.write(downshift[gear - 1])
+		myServo.write(downshift[gear - 1]);
+		currentGear = gear;
 	}
 	else if(gear > currentGear)
 	{
-		myservo.write(upshift[gear - 2])
+		myServo.write(upshift[gear - 2]);
+		currentGear = gear;
 	}
 }
 
-void desiredVelocity()
+int gears::optimizeGear(double pitch)
 {
-	dobule velocity;
+	double minimum = 1000;
+	int gear = 0;
+	double velocity;
+	double cadence;
 	double power;
 	double velocity_high = 30; //mps
 	double velocity_low = 0; //mps
@@ -140,5 +154,16 @@ void desiredVelocity()
 		}
 		err = abs(power - desiredPower);
 	}
-	return velocity;
+	
+	for(int i = 0; i < 8; i++)
+	{
+		cadence = velocity / (ratios[i]*125.82*(53/25)); //wheel is 2097mm, ratio on gear 1 is 53/25
+		if(abs(desiredCadence - cadence) < minimum)
+		{
+			minimum = abs(desiredCadence - cadence);
+			gear = i + 1;
+		}
+		
+	}
+	return gear;
 }
