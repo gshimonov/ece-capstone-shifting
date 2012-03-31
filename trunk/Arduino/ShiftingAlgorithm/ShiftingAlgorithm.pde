@@ -1,11 +1,10 @@
-  #include <Max3421e.h>
-  #include <Usb.h>
-  #include <AndroidAccessory.h>
-  #include <androidData.h>
-  #include <rpm.h>
-  #include <forceWind.h>
-  #include <forces.h>
-  #include <calculateVelocity.h>
+#include <Max3421e.h>
+#include <Usb.h>
+#include <AndroidAccessory.h>
+#include <androidData.h>
+#include <rpm.h>
+#include <Servo.h>
+#include <gears.h>  
   
 // Increase ADC sample rate to 1us per call
 #define FASTADC 1
@@ -21,8 +20,9 @@
 #define debounceTime 50
 #define wheelPin     0
 #define pedalPin     1
-#define degToRad     0.0174532925f
-#define windConstants 0.3165f
+#define servoPin      9
+#define wheelPower    48
+#define pedalPower    49
        
   AndroidAccessory acc("Manufacturer",
   "Model",
@@ -34,10 +34,8 @@
   androidData pitch(1);
   rpm wheel(wheelPin, debounceTime);
   rpm pedal(pedalPin, debounceTime);
-  forceWind wind;
-  forces rollingResistance(80.0); // 80.0: dummy weight (person + bike)
-  forces slope(80.0); // 80.0: dummy weight (person + bike)
-  calculateVelocity cv;
+  Servo myServo;
+  gears myGears(servoPin);
 
 double start = 0;
 double t = 0;
@@ -45,11 +43,7 @@ double averagingTime = 2000; // 2 seconds
 double pitchData = 0;
 double wheelData = 0;
 double pedalData = 0;
-double fWind = 0; // force due to wind resistance
-double fRollingRes = 0; //force due to rolling resistance
-double fSlope = 0; //force due to 
-double grade = 0;
-double desiredVelocity = 0;
+int optimizedGear = 0;
 
 void setup()
 {
@@ -62,6 +56,11 @@ void setup()
   
   Serial.begin(9600);
   acc.powerOn(); // Initialize USB accessory
+  pinMode(wheelPower, OUTPUT);
+  pinMode(pedalPower, OUTPUT);
+  
+  digitalWrite(wheelPower, HIGH);
+  digitalWrite(pedalPower, HIGH);
 
 //  androidData pitch(); //this will have input parameters to know what buffer to read from Android
 //  velocity wheel(); //this will have input parameters to know what pin to read from, etc.
@@ -89,11 +88,11 @@ void loop()
   }
   samples = pitch.getCounter();
   pitchData = -pitch.getAverage(); //average data in sample array and then delete info in array
-                                   //sign change for correctness
   wheelData = wheel.getAverage(); //...
   pedalData = pedal.getAverage(); //...
 //  kph = (circum/double(time))*3.6;
 
+// Write to Android
 if(acc.isConnected())
 {
 	byte msg[1];
@@ -102,15 +101,12 @@ if(acc.isConnected())
 }
 
   //calculate speed for desired power
+  //optimizedGear = myGears.optimizeGear(pitchData);
+  optimizedGear = myGears.optimizeGear(7); //debug value of +7 degrees
+  //shift to calculated gear for desired power
+  myGears.changeGear(optimizedGear);
   
-  grade = tan(pitchData*degToRad); //get grade by computing tangent of pitch (in radians)
-  
-  fWind = wind.fWind(5.0); // plug in actual velocity in meters/second
-  fRollingRes = rollingResistance.fRollingResistance();
-  fSlope = slope.fSlope(grade);
-  desiredVelocity = cv.getVelocity(250, 0.4, windConstants, fSlope, fRollingRes);
-  
-  
+ /*
   Serial.print("loop time: ");
   Serial.print(t);
   Serial.print(" loop iterations: ");
@@ -122,13 +118,16 @@ if(acc.isConnected())
   Serial.print(" kph: ");
   Serial.print(0.12582*wheelData); //0.12582 kph/rpm using 2097mm wheel
   Serial.print(" Pedal RPM: ");
+  Serial.println(pedalData);
+ */
+  
+  //Serial.print("Pitch: ");
+  //Serial.print(pitchData);
+  Serial.print(" Optimized gear: ");
+  Serial.print(optimizedGear);
+  Serial.print(" Pedal RPM: ");
   Serial.print(pedalData);
-  Serial.print(" fWind: ");
-  Serial.print(fWind);
-  Serial.print(" grade: ");
-  Serial.print(grade);
-  Serial.print(" fRl ");
-  Serial.print(fRollingRes);
-  Serial.print(" fSl ");
-  Serial.println(fSlope);
+  Serial.print(" wheel m/s: ");
+  Serial.println(125.82*wheelData/3600);
+  
 }

@@ -14,10 +14,9 @@ private:
 	
 	//Arduino control pin for servo
 	int servoPin;
-	servo myServo;
 	
 	//parameters for calculation, don't change very often
-	double frontalArea //m^2
+	double frontalArea; //m^2
 	double dragCoefficient; //constant
 	double airDensity; //kg/m^3
 	double bikeWeight; //kg
@@ -27,16 +26,14 @@ private:
 	//user preferences
 	double desiredCadence;
 	double desiredPower;
-
-	//dynamic parameters
-	double pitch; //rise over run
 	
 	//current gear
 	int currentGear;
 	
 	//servo positions for each gear (must be calibrated)
-	const int upshift[7]; 
-	const int downshift[7];	
+	int upshift[7]; 
+	int downshift[7];
+	double ratios[8];
 	
 public:
 	gears(int servoPin); //class constructor
@@ -48,7 +45,6 @@ public:
 	void changeBikeWeight(double input);
 	void changeRiderWeight(double input);
 	void changeRollingCoefficient(double input);
-	void changePitch(double input);
 	void changeDesiredCadence(double input);
 	void changeDesiredPower(double input);
 	
@@ -58,11 +54,7 @@ public:
 	void changeGear(int gearNumber); //writes to the servo to change to a specified gear
 	
 	//calculate desired velocity
-	double desiredVelocity(void);
-	
-	
-
-	
+	int optimizeGear(double pitch);
 };
 
 #endif /* __gears_h__ */
