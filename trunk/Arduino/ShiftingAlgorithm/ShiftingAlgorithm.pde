@@ -102,7 +102,7 @@ if(acc.isConnected())
 
   //calculate speed for desired power
   //optimizedGear = myGears.optimizeGear(pitchData);
-  optimizedGear = myGears.optimizeGear(7); //debug value of +7 degrees
+  optimizedGear = myGears.optimizeGear(-3, pedalData); //debug value of +7 degrees
   //shift to calculated gear for desired power
   myGears.changeGear(optimizedGear);
   
@@ -129,5 +129,7 @@ if(acc.isConnected())
   Serial.print(pedalData);
   Serial.print(" wheel m/s: ");
   Serial.println(125.82*wheelData/3600);
+  
+  delay(5000);
   
 }
