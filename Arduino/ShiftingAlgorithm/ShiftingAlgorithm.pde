@@ -101,8 +101,8 @@ if(acc.isConnected())
 }
 
   //calculate speed for desired power
-  //optimizedGear = myGears.optimizeGear(pitchData);
-  optimizedGear = myGears.optimizeGear(-3, pedalData); //debug value of +7 degrees
+  optimizedGear = myGears.optimizeGear(pitchData);
+  // optimizedGear = myGears.optimizeGear(-3, pedalData); //debug value of +7 degrees
   //shift to calculated gear for desired power
   myGears.changeGear(optimizedGear);
   
