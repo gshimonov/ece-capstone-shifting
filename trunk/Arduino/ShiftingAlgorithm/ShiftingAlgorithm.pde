@@ -4,7 +4,7 @@
 #include <androidData.h>
 #include <rpm.h>
 #include <Servo.h>
-#include <gears.h>  
+#include <gears.h>
   
 // Increase ADC sample rate to 1us per call
 #define FASTADC 1
@@ -18,8 +18,8 @@
 #endif
 
 #define debounceTime 50
-#define wheelPin     0
-#define pedalPin     1
+#define wheelPin    3
+#define pedalPin     2
 #define servoPin      9
 #define wheelPower    48
 #define pedalPower    49
@@ -44,6 +44,7 @@ double pitchData = 0;
 double wheelData = 0;
 double pedalData = 0;
 int optimizedGear = 0;
+byte msg[1];
 
 void setup()
 {
@@ -95,14 +96,14 @@ void loop()
 // Write to Android
 if(acc.isConnected())
 {
-	byte msg[1];
 	msg[0]=0.12582*wheelData;
 	acc.write(msg,1);
 }
 
   //calculate speed for desired power
-  optimizedGear = myGears.optimizeGear(pitchData);
-  // optimizedGear = myGears.optimizeGear(-3, pedalData); //debug value of +7 degrees
+  //optimizedGear = myGears.optimizeGear(pitchData);
+  optimizedGear = 3;
+  //optimizedGear = myGears.optimizeGear(-3, pedalData); //debug value of +7 degrees
   //shift to calculated gear for desired power
   myGears.changeGear(optimizedGear);
   
@@ -130,6 +131,6 @@ if(acc.isConnected())
   Serial.print(" wheel m/s: ");
   Serial.println(125.82*wheelData/3600);
   
-  delay(5000);
+  delay(500);
   
 }
