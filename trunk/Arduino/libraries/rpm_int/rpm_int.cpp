@@ -27,7 +27,7 @@ int wheelIntNum = 0;
 float getAverageSpeedKPH(void)
 {
   float avg;
-  if( (wheelStartFlg == 0) && (wheelKPHNumVals != 0) )
+  if( (wheelStartFlg == 0) && (wheelKPHNumVals > 0) )
   {
     avg = (wheelKPHSum / ((float)wheelKPHNumVals) );
   } else {
@@ -41,7 +41,7 @@ float getAverageSpeedKPH(void)
 float getAverageCadenceRPM(void)
 {
   float avg;
-  if( (pedalStartFlg == 0) && (pedalRPMNumVals != 0) )
+  if( (pedalStartFlg == 0) && (pedalRPMNumVals > 0) )
   {
     avg = (pedalRPMSum / ((float)pedalRPMNumVals) );
   } else {
