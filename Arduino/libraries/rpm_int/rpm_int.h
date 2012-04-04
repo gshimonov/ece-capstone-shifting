@@ -24,8 +24,8 @@ void pedal_setup(void);
 void wheel_setup(void);
 void wheel_low_handler(void);
 void pedal_low_handler(void);
-void do_wheel_speed(void);
-void do_pedal_speed(void);
+void do_wheel_time(void);
+void do_pedal_time(void);
 float getAverageSpeedKPH(void);
 float getAverageCadenceRPM(void);
 // void log_zero_speed(void);
@@ -49,7 +49,7 @@ float getAverageCadenceRPM(void);
 
 #define TMR_COUNTS_PER_MS          (15.625f)
 // #define NUM_WHEEL_KPH_SAMPLES      (5)
-// #define NUM_PEDAL_RPM_SAMPLES      (5) 
+// #define NUM_PEDAL_RPM_SAMPLES      (5)
 
 extern int derp; // dummy var
 extern volatile float wheelKPHSum;
@@ -60,9 +60,10 @@ extern volatile char wheelIntFlg;
 extern volatile char pedalIntFlg;
 extern volatile char wheelStartFlg;
 extern volatile char pedalStartFlg;
-extern int pedalIntPin = 3;
-extern int wheelIntPin = 2;
-extern int pedalIntNum = 1;
-extern int wheelIntNum = 0;
+extern int pedalIntPin;
+extern int wheelIntPin;
+extern int pedalIntNum;
+extern int wheelIntNum; 
 
 #endif
+
