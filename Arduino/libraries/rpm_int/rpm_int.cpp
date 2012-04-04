@@ -11,10 +11,10 @@
 #include "rpm_int.h"
 
 int derp; // dummy var
-volatile float wheelKPHBuf[NUM_WHEEL_KPH_SAMPLES];
-volatile float pedalRPMBuf[NUM_PEDAL_RPM_SAMPLES];
-volatile char wheelKPHInd;
-volatile char pedalRPMInd;
+volatile float wheelKPHSum;
+volatile float pedalRPMSum;
+volatile int wheelKPHNumVals;
+volatile int pedalRPMNumVals;
 volatile char wheelIntFlg;
 volatile char pedalIntFlg;
 volatile char wheelStartFlg;
@@ -24,16 +24,44 @@ int wheelIntPin = 2;
 int pedalIntNum = 1;
 int wheelIntNum = 0;
 
+float getAverageSpeedKPH(void)
+{
+  float avg;
+  if( (wheelStartFlg == 0) && (wheelKPHNumVals != 0) )
+  {
+    avg = (wheelKPHSum / ((float)wheelKPHNumVals) );
+  } else {
+    avg = 0.0f; // stopped
+  }
+  wheelKPHSum = 0.0f;
+  wheelKPHNumVals = 0;
+  return avg;
+}
+
+float getAverageCadenceRPM(void)
+{
+  float avg;
+  if( (pedalStartFlg == 0) && (pedalRPMNumVals != 0) )
+  {
+    avg = (pedalRPMSum / ((float)pedalRPMNumVals) );
+  } else {
+    avg = 0.0f; // stopped
+  }
+  pedalRPMSum = 0.0f;
+  pedalRPMNumVals = 0;
+  return avg;
+}
+
 ISR(TIMER3_OVF_vect)
 {
   wheelStartFlg = 1;
-  log_zero_speed();
+  // log_zero_speed();
 }
 
 ISR(TIMER4_OVF_vect)
 {
   pedalStartFlg = 1;
-  log_zero_cadence();
+  // log_zero_cadence();
 }
 
 void pedal_setup(void)
@@ -44,11 +72,8 @@ void pedal_setup(void)
   attachInterrupt(pedalIntNum,pedal_low_handler,FALLING);
   pedalIntFlg=0;
   pedalStartFlg = 1;
-  pedalRPMInd;
-  for( idx=0; idx < NUM_PEDAL_RPM_SAMPLES; idx++ )
-  {
-     pedalRPMBuf[idx] = 0.0f;
-  }
+  pedalRPMSum = 0.0f;
+  pedalRPMNumVals = 0;
 }
 
 void wheel_setup(void)
@@ -60,11 +85,8 @@ void wheel_setup(void)
   attachInterrupt(wheelIntNum,wheel_low_handler,FALLING);
   wheelIntFlg=0;
   wheelStartFlg = 1;
-  wheelKPHInd=0;
-  for( idx=0; idx < NUM_WHEEL_KPH_SAMPLES; idx++ )
-  {
-     wheelKPHBuf[idx] = 0.0f;
-  }
+  wheelKPHSum = 0.0f;
+  wheelKPHNumVals = 0;
 }
 
 void timers_sync(void)
@@ -151,12 +173,8 @@ void do_wheel_time()
     if(tempFloat > MIN_WHEEL_TIME_THRESH_MS )
     {
       // now convert to kph
-      wheelKPHBuf[wheelKPHInd] = (WHEEL_CIRCUM_MM * SPEED_CONV)/tempFloat;
-      wheelKPHInd = wheelKPHInd + 1;
-      if( wheelKPHInd >= NUM_WHEEL_KPH_SAMPLES )
-      {
-         wheelKPHInd = 0;
-      }
+      wheelKPHSum = wheelKPHSum + ((WHEEL_CIRCUM_MM * SPEED_CONV)/tempFloat);
+      wheelKPHNumVals = wheelKPHNumVals + 1;
       TCNT3H=0;
       TCNT3L=0;
     }
@@ -186,12 +204,8 @@ void do_pedal_time()
     if( tempFloat > MIN_PEDAL_TIME_THRESH_MS )
     {
       // now convert to rpm
-      pedalRPMBuf[pedalRPMInd] = (PEDAL_CONV/tempFloat);
-      pedalRPMInd = pedalRPMInd + 1;
-      if( pedalRPMInd >= NUM_PEDAL_RPM_SAMPLES )
-      {
-         pedalRPMInd = 0;
-      }
+      pedalRPMSum = pedalRPMSum + (PEDAL_CONV/tempFloat);
+      pedalRPMNumVals = pedalRPMNumVals + 1;
       TCNT4H=0;
       TCNT4L=0;
     }
@@ -199,6 +213,7 @@ void do_pedal_time()
   pedalIntFlg=0;
 }
 
+/*
 void log_zero_speed(void)
 {
   wheelKPHBuf[wheelKPHInd] = 0.0f;
@@ -218,4 +233,5 @@ void log_zero_cadence(void)
     pedalRPMInd = 0;
   }
 }  
+*/
 
