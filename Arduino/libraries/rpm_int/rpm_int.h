@@ -8,6 +8,9 @@
     Last updated by Daniel Ford on April 3, 2012
 */
 
+#ifndef __RPM_INT_H__
+#define __RPM_INT_H__
+
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"	// for digitalRead, digitalWrite, etc
 #else
@@ -62,3 +65,4 @@ extern int wheelIntPin = 2;
 extern int pedalIntNum = 1;
 extern int wheelIntNum = 0;
 
+#endif
