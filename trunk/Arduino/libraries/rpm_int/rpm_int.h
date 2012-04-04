@@ -23,8 +23,10 @@ void wheel_low_handler(void);
 void pedal_low_handler(void);
 void do_wheel_speed(void);
 void do_pedal_speed(void);
-void log_zero_speed(void);
-void log_zero_cadence(void);
+float getAverageSpeedKPH(void);
+float getAverageCadenceRPM(void);
+// void log_zero_speed(void);
+// void log_zero_cadence(void);
 
 // defines for setting and clearing register bits
 #ifndef cbi
@@ -43,14 +45,14 @@ void log_zero_cadence(void);
 #define MIN_PEDAL_TIME_THRESH_MS   (MIN_GEAR_RAT*MIN_WHEEL_TIME_THRESH_MS)
 
 #define TMR_COUNTS_PER_MS          (15.625f)
-#define NUM_WHEEL_KPH_SAMPLES      (5)
-#define NUM_PEDAL_RPM_SAMPLES      (5) 
+// #define NUM_WHEEL_KPH_SAMPLES      (5)
+// #define NUM_PEDAL_RPM_SAMPLES      (5) 
 
 extern int derp; // dummy var
-extern volatile float wheelKPHBuf[NUM_WHEEL_KPH_SAMPLES];
-extern volatile float pedalRPMBuf[NUM_PEDAL_RPM_SAMPLES];
-extern volatile char wheelKPHInd;
-extern volatile char pedalRPMInd;
+extern volatile float wheelKPHSum;
+extern volatile float pedalRPMSum;
+extern volatile int wheelKPHNumVals;
+extern volatile int pedalRPMNumVals;
 extern volatile char wheelIntFlg;
 extern volatile char pedalIntFlg;
 extern volatile char wheelStartFlg;
