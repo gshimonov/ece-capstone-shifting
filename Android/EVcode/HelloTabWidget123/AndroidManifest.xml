@@ -5,7 +5,7 @@
       android:versionName="1.0">
 
 <!-- com.tab package uses com.tab.HelloTabWidget as main activity with no title on app -->
-    <application android:icon="@drawable/icon_bike" android:label="@string/app_name">
+    <application android:icon="@drawable/icon_bike" android:label="@string/app_name" android:name="com.tab.textfield.Values">
         <activity android:name="HelloTabWidget"
                   android:label="@string/app_name"
                   android:theme="@android:style/Theme.NoTitleBar"
@@ -18,17 +18,22 @@
         <intent-filter>
     	<action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
     	</intent-filter>
+    		
     		<meta-data android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
     	 		android:resource="@xml/accessory_filter"/>
         </activity>
         
-<!-- Added tabbed activities Accelerometer, Orientation, and SeekBar -->
+<!-- Added tabbed activities Orientation Seek and userSetup -->
 		<activity android:name=".seek.Seek"
 		          android:screenOrientation="portrait"></activity>
 		<activity android:name=".orientation.Orientation"
 		          android:screenOrientation="portrait"></activity>
-<!-- 		<activity android:name=".read.ReadtestActivity" -->
-<!-- 		          android:screenOrientation="portrait"></activity> -->
+		<activity android:name=".textfield.WeightSetup"
+		          android:screenOrientation="portrait"></activity>
+		<activity android:name=".textfield.CadenceSetup"
+		          android:screenOrientation="portrait"></activity>
+		<activity android:name=".textfield.UserParam"
+		          android:screenOrientation="portrait"></activity>
         
         <uses-library android:name="com.android.future.usb.accessory"></uses-library>
     </application>

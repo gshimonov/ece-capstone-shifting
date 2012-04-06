@@ -218,6 +218,7 @@ public class Orientation extends Activity implements Orientation_Listener, Runna
 					
 					Message m = Message.obtain(mHandler);
 					int value = (int)buffer[i];
+					int value_2= (int)buffer[i+1];
 					// 'f' is the flag, use for your own logic
 					// value is the value from the arduino
 					m.obj = new ValueMsg('w', value,i,ret);
@@ -226,7 +227,7 @@ public class Orientation extends Activity implements Orientation_Listener, Runna
 				i += 1; // number of bytes sent from arduino
 			}
 			j=0;
-			while(j < 100){
+			while(j < 40){
 			if (pitcher >= 0) {
 				buffer2[0] = (byte)200; //200 is a code signifying angle is positive, no conversion necessary
 				buffer2[1]=(byte)pitcher;

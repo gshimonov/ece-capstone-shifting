@@ -14,4 +14,16 @@
     <string name="contentd">All american imageview</string>
     <string name="ToggleButton">ToggleButton</string>
     <string name="buffer1">SPEED BUFFER :</string>
+    <string name="riderw">Enter Rider Weight in Lbs</string>
+    <string name="bikew">Enter Bike Weight in Lbs</string>
+    <string name="riderwtxt">Rider Weight: </string>
+    <string name="bikewtxt">Bike Weight: </string>
+    <string name="button1">Back</string>
+    <string name="ridercad">Enter Rider Cadence in units</string>
+    <string name="bikepow">Enter Bike Power Output in units</string>
+    <string name="ridercadtxt">Cadence: </string>
+    <string name="bikepowtxt">Power: </string>
+    <string name="riderbutton">Rider Settings</string>
+    <string name="cadbutton">Cadence Settings</string>
+    <string name="sliderbutton">Slider Settings</string>
 </resources>

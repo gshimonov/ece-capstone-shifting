@@ -9,43 +9,37 @@
         android:layout_height="match_parent"
         android:orientation="vertical" >
 
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:background="#ffd700"
+            android:paddingBottom="20dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="20dp"
+            android:text="@string/button1"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#000000"
+            android:textStyle="bold" />
+
         <ImageView
             android:id="@+id/imageview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
             android:contentDescription="@string/contentd"
             android:src="@drawable/biker0"
-            android:tint="#ffd700"
-            android:layout_marginTop="27dp" />
+            android:tint="#ffd700" />
 
         <SeekBar
             android:id="@+id/seekbar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            
-             />
-
-<!--         <TextView -->
-<!--             android:id="@+id/textViewProgress" -->
-<!--             android:layout_width="wrap_content" -->
-<!--             android:layout_height="wrap_content" -->
-<!--             android:layout_below="@+id/seekbar" -->
-<!--             android:layout_alignParentLeft="true" -->
-<!--             android:layout_marginLeft="27dp" -->
-<!--             android:text="@string/idprogress" -->
-<!--             android:textAppearance="?android:attr/textAppearanceLarge" /> -->
-
-        <TextView
-            android:id="@+id/textViewProgress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginBottom="50dp"
-            android:text="@string/idprogress"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:layout_below="@+id/imageview"
+            android:layout_marginTop="30dp" />
 
     </RelativeLayout>
 
