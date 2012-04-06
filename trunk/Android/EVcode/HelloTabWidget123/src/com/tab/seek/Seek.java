@@ -1,7 +1,11 @@
 package com.tab.seek;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -9,10 +13,15 @@ import android.widget.TextView;
 
 import com.tab.R;
 
-public class Seek extends Activity implements OnSeekBarChangeListener{
+public class Seek extends Activity implements OnSeekBarChangeListener, OnClickListener{
 	private SeekBar bar;
 	private int progression;
 	private TextView textProgress;
+	private com.tab.textfield.UserParam user;
+	private Button back;
+	Bundle extras;
+	String sliderp;
+	int prog1;
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -25,12 +34,17 @@ public class Seek extends Activity implements OnSeekBarChangeListener{
         // since we are using this class as the listener the class is "this"
 
         // make text label for progress value
-        textProgress = (TextView)findViewById(R.id.textViewProgress);
+//        textProgress = (TextView)findViewById(R.id.textViewProgress);
         // make text label for action
    
         ImageView image = (ImageView) findViewById(R.id.imageview);
-        bar.setProgress(1);
-
+        back = (Button) findViewById(R.id.button3);
+        back.setOnClickListener(this);
+        extras = getIntent().getExtras();
+      
+        sliderp = extras.getString("Slider");
+        int s = Integer.parseInt(sliderp);
+        	bar.setProgress(s);
 
     }
 
@@ -40,9 +54,9 @@ public class Seek extends Activity implements OnSeekBarChangeListener{
     	// TODO Auto-generated method stub
         ImageView image = (ImageView) findViewById(R.id.imageview);
     	// change progress text label with current seekbar value
-    	textProgress.setText("The value is: "+progress);
+//    	textProgress.setText("The value is: "+progress);
     	// change action text label to changing
-
+        prog1=progress;
     	progression=bar.getProgress();
     	
     	if (progression>90){
@@ -89,7 +103,27 @@ public class Seek extends Activity implements OnSeekBarChangeListener{
     	// TODO Auto-generated method stub
 
     	seekBar.setSecondaryProgress(seekBar.getProgress());
+    
+   
+    }
+    
+    public void onClick(View view) {
     	
+    	String s=Integer.toString(prog1);
+    	
+    	if (s.isEmpty()){
+            Intent intent = new Intent();
+            setResult(RESULT_CANCELED, intent);
+            finish();
+    		
+    	}
+    	
+    	else{
+        Intent intent = new Intent();
+        intent.putExtra("Slide1", s);
+        setResult(RESULT_OK, intent);
+        finish();
+    	}
     }
 
 }
