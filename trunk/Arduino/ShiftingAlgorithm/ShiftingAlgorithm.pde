@@ -3,8 +3,10 @@
 #include <AndroidAccessory.h>
 #include <androidData.h>
 #include <rpm.h>
+#include <rpm_int.h>
 #include <Servo.h>
 #include <gears.h>
+
   
 // Increase ADC sample rate to 1us per call
 #define FASTADC 1
@@ -37,17 +39,17 @@
   Servo myServo;
   gears myGears(servoPin);
 
-double start = 0;
-double t = 0;
-double averagingTime = 2000; // 2 seconds
-double pitchData = 0;
-double wheelData = 0;
-double pedalData = 0;
+unsigned long tcur, tprev;
+float averagingTime = 2000; //ms
+float pitchData = 0;
+float wheelData = 0;
+float pedalData = 0;
 int optimizedGear = 0;
 byte msg[1];
 
 void setup()
 {
+  analogReference(DEFAULT);
   #if FASTADC
   // set prescale to 16
   sbi(ADCSRA,ADPS2) ;
@@ -62,75 +64,81 @@ void setup()
   
   digitalWrite(wheelPower, HIGH);
   digitalWrite(pedalPower, HIGH);
+  
+  myServo.attach(servoPin, 1100, 1900);
+  pinMode(5, OUTPUT);
 
-//  androidData pitch(); //this will have input parameters to know what buffer to read from Android
-//  velocity wheel(); //this will have input parameters to know what pin to read from, etc.
-//  velocity cadence(); //...
+  timer3_setup();
+  timer4_setup();
+  timers_sync();
+  pedal_setup();
+  wheel_setup();
+
+  tprev = millis();
 }
-
-
-//debug variables
-int iteration;
-int samples;
 
 void loop()
 {
-  iteration = 0;
-  t = 0;
-  start = millis();
-  //measure parameters
-  while(t < averagingTime)
+  float mps;
+  float filt_mps;
+  float tmpflt;
+  int prnt1;
+
+  tcur = millis();
+  // measure parameters
+  
+  if( (float)(tcur - tprev) >= averagingTime )
   {
-    pitch.sample();
-    wheel.sample();
-    pedal.sample();
-    t = millis()-start;
-    iteration = iteration + 1;
+    tprev = tcur;
+    wheelData = getAverageSpeedKPH();
+    Serial.print("WheelData = ");
+    Serial.println(wheelData);
+    pedalData = getAverageCadenceRPM();
+    pitchData = pitch.getAverage(); // average data in sample array and then delete info in array
+
+    // mps = 125.82*wheelData/3600; // convert to meters per second from rpm
+    mps = wheelData*(1000.0f/3600.0f); // convert from kph to meters per second
+    if(mps < 1.0f)
+    {
+      filt_mps = 1.0f;
+    } else {
+      filt_mps = mps;
+    }
+    
+    // Write to Android
+    if(acc.isConnected())
+    {
+       Serial.println("sending Android speed data: ");
+       tmpflt = mps*2.2369;
+       Serial.println(tmpflt);
+       msg[0]= byte(tmpflt); // meters per second to mph conversion
+       Serial.println("Rounded:");
+       prnt1 = (int)msg[0];
+       Serial.println(prnt1);
+       acc.write(msg,1);
+    }
+    
+    myGears.changeCurrentVelocity(filt_mps);
+    myGears.changeCurrentCadence(pedalData);
+
+    // calculate speed for desired power
+    optimizedGear = myGears.optimizeGear(pitchData);
+    myGears.changeGear(optimizedGear);
+
+    // print useful information to computer - for debugging
+    Serial.print(" Pitch: ");
+    Serial.print(pitchData);
+    Serial.print(" Optimized gear: ");
+    Serial.print(optimizedGear);
+    Serial.print(" Pedal RPM: ");
+    Serial.print(pedalData);
+    Serial.print(" wheel m/s: ");
+    Serial.println(mps);
   }
-  samples = pitch.getCounter();
-  pitchData = -pitch.getAverage(); //average data in sample array and then delete info in array
-  wheelData = wheel.getAverage(); //...
-  pedalData = pedal.getAverage(); //...
-//  kph = (circum/double(time))*3.6;
 
-// Write to Android
-if(acc.isConnected())
-{
-	msg[0]=0.12582*wheelData;
-	acc.write(msg,1);
+  // wheelData = wheel.getAverage(); 
+  // pedalData = pedal.getAverage();
+  pitch.sample();
+  delay(25);  
 }
 
-  //calculate speed for desired power
-  //optimizedGear = myGears.optimizeGear(pitchData);
-  optimizedGear = 3;
-  //optimizedGear = myGears.optimizeGear(-3, pedalData); //debug value of +7 degrees
-  //shift to calculated gear for desired power
-  myGears.changeGear(optimizedGear);
-  
- /*
-  Serial.print("loop time: ");
-  Serial.print(t);
-  Serial.print(" loop iterations: ");
-  Serial.print(iteration);
-  Serial.print(" android samples: ");
-  Serial.print(samples);
-  Serial.print(" pitch: ");
-  Serial.print(pitchData);
-  Serial.print(" kph: ");
-  Serial.print(0.12582*wheelData); //0.12582 kph/rpm using 2097mm wheel
-  Serial.print(" Pedal RPM: ");
-  Serial.println(pedalData);
- */
-  
-  //Serial.print("Pitch: ");
-  //Serial.print(pitchData);
-  Serial.print(" Optimized gear: ");
-  Serial.print(optimizedGear);
-  Serial.print(" Pedal RPM: ");
-  Serial.print(pedalData);
-  Serial.print(" wheel m/s: ");
-  Serial.println(125.82*wheelData/3600);
-  
-  delay(500);
-  
-}
