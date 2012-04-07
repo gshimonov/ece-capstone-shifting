@@ -138,8 +138,11 @@ int gears::optimizeGear(float pitch)
 			velocity_low = (velocity_high + velocity_low)/2;
 		}
 		err = abs(power - desiredPower);
+      Serial.print("err: ");
+      Serial.println(err);
 	}
-	
+   Serial.println("left loop");
+
 	if(currentVelocity >= (0.80 * velocity))
 	{
 		Serial.println("power based mode");
