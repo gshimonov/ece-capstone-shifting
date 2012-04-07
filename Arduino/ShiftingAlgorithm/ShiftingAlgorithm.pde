@@ -87,8 +87,12 @@ void loop()
   tcur = millis();
   // measure parameters
   
-  if( (float)(tcur - tprev) >= averagingTime )
-  {
+  while( (float)(tcur - tprev) <= averagingTime )
+  { 
+     pitch.sample();
+     tcur = millis();
+  }
+  
     tprev = tcur;
     wheelData = getAverageSpeedKPH();
     Serial.print("WheelData = ");
@@ -134,11 +138,8 @@ void loop()
     Serial.print(pedalData);
     Serial.print(" wheel m/s: ");
     Serial.println(mps);
-  }
 
-  // wheelData = wheel.getAverage(); 
-  // pedalData = pedal.getAverage();
-  pitch.sample();
-  delay(25);  
+
+  // delay(25);  
 }
 
