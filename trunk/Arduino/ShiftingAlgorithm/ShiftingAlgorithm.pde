@@ -124,10 +124,18 @@ void loop()
     
     myGears.changeCurrentVelocity(filt_mps);
     myGears.changeCurrentCadence(pedalData);
-
+    
+/*    if (pitchData < -5.0f) {
+      pitchData = -5.0f;
+    }*/
+    Serial.println("passed pitch test");
+    
+    if (mps > 0.25)
+    {
     // calculate speed for desired power
     optimizedGear = myGears.optimizeGear(pitchData);
     myGears.changeGear(optimizedGear);
+    }
 
     // print useful information to computer - for debugging
     Serial.print(" Pitch: ");
