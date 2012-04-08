@@ -17,8 +17,8 @@ gears::gears(int servoPin)
 	  bikeWeight(10),
 	  riderWeight(83), //kg
 	  rollingCoefficient(.004), //constant
-	  desiredCadence(95), // rev/min, multiply by 60 for SI units
-	  desiredPower(200), //Watts
+	  desiredCadence(60), // rev/min, multiply by 60 for SI units
+	  desiredPower(125), //Watts
 	  currentVelocity(0),
 	  currentCadence(0),
 	  currentGear(0)
@@ -111,9 +111,10 @@ int gears::optimizeGear(float pitch)
 	float velocity;
 	float cadence;
 	float power;
-	float velocity_high = 40.0f; //mps
+	float velocity_high = 100.0f; //mps
 	float velocity_low = 0.0f; //mps
 	float err = 1000.0f;
+	//bool flag = false;
 	
 	Serial.println("current velocity is: ");
 	Serial.print(currentVelocity);
@@ -129,7 +130,11 @@ int gears::optimizeGear(float pitch)
 		power = velocity*(.5*frontalArea*dragCoefficient*airDensity*sq(velocity) + 
 				(riderWeight + bikeWeight)*9.8*rollingCoefficient + 
 				(riderWeight + bikeWeight)*9.8*tan(pi*pitch/180));
-		if(power > desiredPower)
+		/*if ((velocity_high == velocity_low) && (velocity_high > 0 || velocity_low > 0))
+		{
+			flag = true;
+		}*/
+		if (power > desiredPower)
 		{
 			velocity_high = (velocity_high + velocity_low)/2;
 		}
@@ -137,9 +142,21 @@ int gears::optimizeGear(float pitch)
 		{
 			velocity_low = (velocity_high + velocity_low)/2;
 		}
-		err = abs(power - desiredPower);
-      Serial.print("err: ");
-      Serial.println(err);
+			err = abs(power - desiredPower);
+/*			
+	  Serial.print("desired power: ");
+	  Serial.print(desiredPower);
+	  Serial.print(" power: ");
+	  Serial.print(power);
+      Serial.print(" err: ");
+      Serial.print(err);
+	  Serial.print(" velocity low: ");
+	  Serial.print(velocity_low);
+	  Serial.print(" velocity high: ");
+	  Serial.print(velocity_high);
+	  Serial.print(" velocity: ");
+	  Serial.println(velocity);
+  */
 	}
    Serial.println("left loop");
 
