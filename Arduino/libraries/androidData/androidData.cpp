@@ -78,4 +78,59 @@ int androidData::getCounter(void)
 	return counter;
 }
 
-	 
+float androidData::deserializeFloat(char* buf)
+{
+   float tmp;
+   float* fptr;
+   char* ptr;
+   fptr = &tmp;
+   ptr = (char*)(fptr);
+   ptr[0] = buf[0];
+   ptr[1] = buf[1];
+   ptr[2] = buf[2];
+   ptr[3] = buf[3];
+   return tmp;
+}
+
+int androidData::deserializeInt(char* buf)
+{
+   int tmp;
+   int* iptr;
+   char* ptr;
+   iptr = &tmp;
+   ptr = (char*)(iptr);
+   ptr[0] = buf[0];
+   ptr[1] = buf[1];
+   ptr[2] = buf[2];
+   ptr[3] = buf[3];
+   return tmp;
+}
+
+void androidData::serializeInt(char* buf, int inp)
+{
+   int tmp;
+   int* iptr;
+   char* ptr;
+
+   tmp = inp;
+   iptr = &tmp;
+   ptr = (char*)iptr;
+   buf[0] = ptr[0];
+   buf[1] = ptr[1];
+}
+
+void androidData::serializeFloat(char* buf, float inp)
+{
+   float tmp;
+   float* fptr;
+   char* ptr;
+
+   tmp = inp;
+   fptr = &tmp;
+   ptr = (char*)ptr;
+   buf[0] = ptr[0];
+   buf[1] = ptr[1];
+   buf[2] = ptr[2];
+   buf[3] = ptr[3];
+}
+ 
