@@ -45,7 +45,7 @@ float pitchData = 0;
 float wheelData = 0;
 float pedalData = 0;
 int optimizedGear = 0;
-byte msg[1];
+byte msg[3];
 
 void setup()
 {
@@ -81,7 +81,7 @@ void loop()
 {
   float mps;
   float filt_mps;
-  float tmpflt;
+  float mph;
   int prnt1;
 
   tcur = millis();
@@ -109,17 +109,16 @@ void loop()
       filt_mps = mps;
     }
     
-    // Write to Android
+    // Write speed (mph), optimizedGear, cadence (rpm) to the Android app
     if(acc.isConnected())
     {
-       Serial.println("sending Android speed data: ");
-       tmpflt = mps*2.2369;
-       Serial.println(tmpflt);
-       msg[0]= byte(tmpflt); // meters per second to mph conversion
-       Serial.println("Rounded:");
-       prnt1 = (int)msg[0];
-       Serial.println(prnt1);
-       acc.write(msg,1);
+       Serial.println("sending Android speed data (mph): ");
+       mph = mps*2.2369;
+       Serial.println(mph);
+       msg[0]= byte(mph); // meters per second to mph conversion
+       msg[1] = byte(optimizedGear); // send current gear
+       msg[2] = byte(pedalData); // send cadence
+       acc.write(msg,3);
     }
     
     myGears.changeCurrentVelocity(filt_mps);
@@ -130,22 +129,20 @@ void loop()
     }*/
     Serial.println("passed pitch test");
     
-    if (mps > 0.25)
-    {
-    // calculate speed for desired power
+    //reset user preferences with updates from Android
+    myGears.changeDesiredPower((float)pitch.getDesiredPower());
+    myGears.changeDesiredCadence((float)pitch.getDesiredCadence());
+    myGears.changeRiderWeight((float)pitch.getRiderWeight());
+    myGears.changeBikeWeight((float)pitch.getBikeWeight());
+    myGears.changeFrontalArea((float)pitch.getFrontalArea());
+    
+    // calculate optimal gear based on pitch and user pref
     optimizedGear = myGears.optimizeGear(pitchData);
     myGears.changeGear(optimizedGear);
-    }
 
     // print useful information to computer - for debugging
     Serial.print(" Pitch: ");
     Serial.print(pitchData);
-    Serial.print(" Optimized gear: ");
-    Serial.print(optimizedGear);
-    Serial.print(" Pedal RPM: ");
-    Serial.print(pedalData);
-    Serial.print(" wheel m/s: ");
-    Serial.println(mps);
 
 
   // delay(25);  
