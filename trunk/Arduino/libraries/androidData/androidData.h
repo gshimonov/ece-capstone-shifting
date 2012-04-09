@@ -9,20 +9,36 @@
 class androidData {
 private:
 	int bufferID;
-	byte buffer[RCV_BUFFER_BYTES];
+	char buffer[RCV_BUFFER_BYTES];
 	int counter; // Keeps track of number of samples
 	float sumData; // Keeps track of sum of all samples
-	
+
+	int desiredPower;
+	int desiredCadence;
+	int bikeWeight;
+	int riderWeight;
+	float frontalArea;
+
+
+
+
 public:
 	androidData(int bufferID);
-	
+
 	void sample(void);
 	float getAverage(void);
 	int getCounter(void);
-   float deserializeFloat(char* buf);
-   int deserializeInt(char* buf);
-   void serializeInt(char* buf, int inp);
-   void serializeFloat(char* buf, float inp);
+	float deserializeFloat(char* buf);
+	int deserializeInt(char* buf);
+	void serialize(char* buf, int inp);
+	void serialize(char* buf, float inp);
+
+	int getDesiredPower();
+	int getDesiredCadence();
+	int getBikeWeight();
+	int getRiderWeight();
+	float getFrontalArea();
+
 };
 
 #endif /* __AndroidData_h__ */
