@@ -24,38 +24,51 @@ void androidData::sample(void)
 	int print1;
 	float data;
 
+   // Serial.println("Inside androidData sample");
 	if (acc.isConnected()) 
 	{
 		len = acc.read(buffer, RCV_BUFFER_BYTES, RCV_NAK_LIMIT); // read data into buffer variable
+      // Serial.println("read finished");
 
-		if (len == 10) 
+		if (len == 12) 
 		{
 			counter += 1; // counter keeps track of number of samples
 
 			//buffer[0:3] - pitch data
 			data = deserializeFloat(&buffer[0]);
 			sumData += data;
+         
+         /*
+         Serial.println("Pitch bytes: ");
+         Serial.println(buffer[0], HEX); 
+         Serial.println(buffer[1], HEX);
+         Serial.println(buffer[2], HEX);
+         Serial.println(buffer[3], HEX);
+         */
+
+         /*
+         Serial.println("Power bytes: ");
+         Serial.println(buffer[8], HEX);
+         Serial.println(buffer[9], HEX);
+         */
 
 			//buffer[4] - bike weight
-			bikeWeight = (int)buffer[4];
+			bikeWeight = (unsigned int)buffer[4];
 
 			//buffer[5] - rider weight
-			riderWeight = (int)buffer[5];
+			riderWeight = deserializeUInt(&buffer[5]);
 
 			//buffer[6] - desired cadence
-			desiredCadence = (int)buffer[6];
+			desiredCadence = deserializeUInt(&buffer[7]);
 
 			//buffer[7] - frontal area (range on Android is 0-100, but we want .4 to .6
-			frontalArea = ((float)buffer[7])/500 + 0.4;
+			frontalArea = ((float)buffer[9])/500 + 0.4;
 
 			//buffer[8] - power
-			desiredPower = deserializeInt(&buffer[8]);
+			desiredPower = deserializeUInt(&buffer[10]);
+         // Serial.println("Successfully received correct len packet from Android");
 		}
-		else if(len == -1) //read function returns -1 if nak limit is reached
-		{
-			Serial.println("nak on Android to Arduino USB connection");
-		}
-		else //if length is any other size other than 11, we have buffer mismatch
+		else if( len > 0 ) //if length is any other size other than 12, we have buffer mismatch
 		{
 			Serial.println("Android is sending a buffer of incorrect length");
 		}
@@ -85,6 +98,7 @@ int androidData::getCounter(void)
 	return counter;
 }
 
+// Android sends big endian, reverse byte order to little endian
 float androidData::deserializeFloat(char* buf)
 {
 	float tmp;
@@ -92,13 +106,14 @@ float androidData::deserializeFloat(char* buf)
 	char* ptr;
 	fptr = &tmp;
 	ptr = (char*)(fptr);
-	ptr[0] = buf[0];
-	ptr[1] = buf[1];
-	ptr[2] = buf[2];
-	ptr[3] = buf[3];
+	ptr[0] = buf[3];
+	ptr[1] = buf[2];
+	ptr[2] = buf[1];
+	ptr[3] = buf[0];
 	return tmp;
 }
 
+// Android sends big endian, reverse byte order to little endian
 int androidData::deserializeInt(char* buf)
 {
 	int tmp;
@@ -106,8 +121,21 @@ int androidData::deserializeInt(char* buf)
 	char* ptr;
 	iptr = &tmp;
 	ptr = (char*)(iptr);
-	ptr[0] = buf[0];
-	ptr[1] = buf[1];
+	ptr[0] = buf[1];
+	ptr[1] = buf[0];
+	return tmp;
+}
+
+// Android sends big endian, reverse byte order to little endian
+unsigned int androidData::deserializeUInt(char* buf)
+{
+	unsigned int tmp;
+	unsigned int* iptr;
+	char* ptr;
+	iptr = &tmp;
+	ptr = (char*)(iptr);
+	ptr[0] = buf[1];
+	ptr[1] = buf[0];
 	return tmp;
 }
 
@@ -139,19 +167,19 @@ void androidData::serialize(char* buf, float inp)
 	buf[3] = ptr[3];
 }
 
-int androidData::getDesiredPower()
+unsigned int androidData::getDesiredPower()
 {
 	return desiredPower;
 }
-int androidData::getDesiredCadence()
+unsigned int androidData::getDesiredCadence()
 {
 	return desiredCadence;
 }
-int androidData::getBikeWeight()
+unsigned int androidData::getBikeWeight()
 {
 	return bikeWeight;
 }
-int androidData::getRiderWeight()
+unsigned int androidData::getRiderWeight()
 {
 	return riderWeight;
 }

@@ -40,16 +40,17 @@
   gears myGears(servoPin);
 
 unsigned long tcur, tprev;
+// unsigned long ttemp;
 float averagingTime = 2000; //ms
 float pitchData = 0;
 float wheelData = 0;
 float pedalData = 0;
 int optimizedGear = 0;
 
-int desiredPower = 0;
-int desiredCadence = 0;
-int bikeWeight = 0;
-int riderWeight = 0;
+float desiredPower = 0;
+float desiredCadence = 0;
+float bikeWeight = 0;
+float riderWeight = 0;
 float frontalArea = 0;
 
 byte msg[3];
@@ -94,16 +95,37 @@ void loop()
   tcur = millis();
   // measure parameters
   
+  /*
+  Serial.print("tcur = ");
+  Serial.println(tcur);
+  Serial.print("tprev = ");
+  Serial.println(tprev);
+  */
+  
+  /*
+  Serial.print("Millis before sample loop: ");
+  ttemp = millis();
+  Serial.println(ttemp);
+  */
+  
   while( (float)(tcur - tprev) <= averagingTime )
   { 
      pitch.sample();
      tcur = millis();
   }
   
+  /*
+  Serial.print("Millis after sample loop: ");
+  ttemp = millis();
+  Serial.println(ttemp);
+  */
+  
     tprev = tcur;
     wheelData = getAverageSpeedKPH();
+    /*
     Serial.print("WheelData = ");
     Serial.println(wheelData);
+    */
     pedalData = getAverageCadenceRPM();
     pitchData = pitch.getAverage(); // average data in sample array and then delete info in array
 
@@ -115,26 +137,38 @@ void loop()
     } else {
       filt_mps = mps;
     }
-    
+  
+  /*
+  Serial.print("Millis before write: ");
+  ttemp = millis();
+  Serial.println(ttemp);
+  */
+  
     // Write speed (mph), optimizedGear, cadence (rpm) to the Android app
     if(acc.isConnected())
     {
-       Serial.println("sending Android speed data (mph): ");
+       // Serial.println("sending Android speed data (mph): ");
        mph = mps*2.2369;
-       Serial.println(mph);
+       // Serial.println(mph);
        msg[0]= byte(mph); // meters per second to mph conversion
        msg[1] = byte(optimizedGear); // send current gear
        msg[2] = byte(pedalData); // send cadence
        acc.write(msg,3);
     }
+    /*
+ Serial.print("Millis after write: ");
+ ttemp = millis();
+ Serial.println(ttemp);
+ */
     
     myGears.changeCurrentVelocity(filt_mps);
     myGears.changeCurrentCadence(pedalData);
     
 /*    if (pitchData < -5.0f) {
       pitchData = -5.0f;
-    }*/
-    Serial.println("passed pitch test");
+    }
+    */
+    // Serial.println("passed pitch test");
     
     //reset user preferences with updates from Android
     desiredPower = (float)pitch.getDesiredPower();
@@ -147,11 +181,23 @@ void loop()
     myGears.changeRiderWeight(riderWeight);
     myGears.changeBikeWeight(bikeWeight);
     myGears.changeFrontalArea(frontalArea);
-    
+
+/*
+  Serial.print("Millis before optimizeGear: ");
+  ttemp = millis();
+  Serial.println(ttemp);
+  */
+  
     // calculate optimal gear based on pitch and user pref
     optimizedGear = myGears.optimizeGear(pitchData);
     myGears.changeGear(optimizedGear);
 
+/*
+  Serial.print("Millis after optimizeGear: ");
+  ttemp = millis();
+  Serial.println(ttemp);
+  */
+  
     // print useful information to computer - for debugging
     Serial.print(" Pitch: ");
     Serial.print(pitchData);
@@ -171,8 +217,6 @@ void loop()
     Serial.print(" frontal area: ");
     Serial.print(frontalArea);
     Serial.println();
-
-
 
   // delay(25);  
 }

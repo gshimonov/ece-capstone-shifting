@@ -106,25 +106,30 @@ void gears::changeGear(int gear)
 
 int gears::optimizeGear(float pitch)
 {
-	float minimum = 1000.0f;
+   int i;
+	float minimum = CADENCE_MIN_START;
 	int gear = 0;
 	float velocity;
 	float cadence;
 	float power;
-	float velocity_high = 100.0f; //mps
-	float velocity_low = 0.0f; //mps
-	float err = 1000.0f;
+	float velocity_high = VEL_HIGH_START; //mps
+	float velocity_low = VEL_LOW_START; //mps
+	float err = ERR_START;
 	//bool flag = false;
 	
+   /*
 	Serial.println("current velocity is: ");
 	Serial.print(currentVelocity);
 	Serial.println();
-	
+	*/
+
+   /*
 	Serial.println("current cadence is: ");
 	Serial.print(currentCadence);
 	Serial.println();
+   */
 	
-	while(err > .1)
+	while( (err > .1) && ((velocity_high - velocity_low) >= VEL_DIFF_MIN) )
 	{
 		velocity = (velocity_high + velocity_low)/2;
 		power = velocity*(.5*frontalArea*dragCoefficient*airDensity*sq(velocity) + 
@@ -158,12 +163,39 @@ int gears::optimizeGear(float pitch)
 	  Serial.println(velocity);
   */
 	}
-   Serial.println("left loop");
+   // Serial.println("left loop");
+
+   if( (velocity_high - velocity_low) < VEL_DIFF_MIN )
+   {
+      // binary search could not find a working velocity value
+      // handle corner cases
+      if( velocity_low == VEL_LOW_START )
+      {
+         // algorithm trying to put velocity below minimum
+         // power is high, shift to easiest (lowest) gear
+         gear = GEAR_MIN;
+         return gear;
+      } 
+      else if( velocity_high == VEL_HIGH_START )
+      {
+         // algorithm trying to put velocity above maximum
+         // power is low, shift to hardest (highest) gear
+         gear = GEAR_MAX;
+         return gear;
+      }
+      else
+      {
+         // algorithm is in the middle oscillating
+         // force it to stable average velocity
+         // then choose as usual
+         velocity = ((velocity_high + velocity_low)/2.0f);
+      }
+   }
 
 	if(currentVelocity >= (0.80 * velocity))
 	{
 		Serial.println("power based mode");
-		for(int i = 0; i < 8; i++)
+		for(i = 0; i < 8; i++)
 		{
 			cadence = velocity / (ratios[i]*.03495*(53/25)); //wheel is 2097mm, ratio on gear 1 is 53/25
 			if(abs(desiredCadence - cadence) < minimum)
@@ -176,7 +208,7 @@ int gears::optimizeGear(float pitch)
 	else
 	{
 		Serial.println("ramp up mode");
-		for(int i = 0; i < 8; i++)
+		for(i = 0; i < 8; i++)
 			{
 				cadence = currentVelocity / (ratios[i]*.03495*(53/25)); //wheel is 2097mm, ratio on gear 1 is 53/25
 				if(abs(desiredCadence - cadence) < minimum)
