@@ -19,6 +19,10 @@ public:
 	void sample(void);
 	float getAverage(void);
 	int getCounter(void);
+   float deserializeFloat(char* buf);
+   int deserializeInt(char* buf);
+   void serializeInt(char* buf, int inp);
+   void serializeFloat(char* buf, float inp);
 };
 
 #endif /* __AndroidData_h__ */
