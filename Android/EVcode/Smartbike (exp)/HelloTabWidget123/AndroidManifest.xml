@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.tab"
+      android:versionCode="1"
+      android:versionName="1.0">
+
+<!-- com.tab package uses com.tab.HelloTabWidget as main activity with no title on app -->
+    <application android:icon="@drawable/icon_bike" android:label="@string/app_name" android:name="com.tab.textfield.Values">
+        <activity android:name="HelloTabWidget"
+                  android:label="@string/app_name"
+                  android:theme="@android:style/Theme.NoTitleBar"
+                  android:screenOrientation="portrait"> 
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            
+        <intent-filter>
+    	<action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
+    	</intent-filter>
+    		
+    		<meta-data android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+    	 		android:resource="@xml/accessory_filter"/>
+        </activity>
+        
+<!-- Added tabbed activities Orientation Seek and userSetup -->
+		<activity android:name=".seek.Seek"
+		          android:screenOrientation="portrait"
+		          android:theme="@android:style/Theme.NoTitleBar"></activity>
+		<activity android:name=".orientation.Orientation"
+		          android:screenOrientation="portrait"
+		          android:theme="@android:style/Theme.NoTitleBar"></activity>
+		<activity android:name=".textfield.WeightSetup"
+		          android:screenOrientation="portrait"
+		          android:theme="@android:style/Theme.NoTitleBar"></activity>
+		<activity android:name=".textfield.CadenceSetup"
+		          android:screenOrientation="portrait"
+		          android:theme="@android:style/Theme.NoTitleBar"></activity>
+		<activity android:name=".textfield.UserParam"
+		          android:screenOrientation="portrait"
+		          android:theme="@android:style/Theme.NoTitleBar"></activity>
+        
+        <uses-library android:name="com.android.future.usb.accessory"></uses-library>
+    </application>
+</manifest>
