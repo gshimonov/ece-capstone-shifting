@@ -45,6 +45,13 @@ float pitchData = 0;
 float wheelData = 0;
 float pedalData = 0;
 int optimizedGear = 0;
+
+int desiredPower = 0;
+int desiredCadence = 0;
+int bikeWeight = 0;
+int riderWeight = 0;
+float frontalArea = 0;
+
 byte msg[3];
 
 void setup()
@@ -130,11 +137,16 @@ void loop()
     Serial.println("passed pitch test");
     
     //reset user preferences with updates from Android
-    myGears.changeDesiredPower((float)pitch.getDesiredPower());
-    myGears.changeDesiredCadence((float)pitch.getDesiredCadence());
-    myGears.changeRiderWeight((float)pitch.getRiderWeight());
-    myGears.changeBikeWeight((float)pitch.getBikeWeight());
-    myGears.changeFrontalArea((float)pitch.getFrontalArea());
+    desiredPower = (float)pitch.getDesiredPower();
+    desiredCadence = (float)pitch.getDesiredCadence();
+    riderWeight = (float)pitch.getRiderWeight();
+    bikeWeight = (float)pitch.getBikeWeight();
+    frontalArea = (float)pitch.getFrontalArea();
+    myGears.changeDesiredPower(desiredPower);
+    myGears.changeDesiredCadence(desiredCadence);
+    myGears.changeRiderWeight(riderWeight);
+    myGears.changeBikeWeight(bikeWeight);
+    myGears.changeFrontalArea(frontalArea);
     
     // calculate optimal gear based on pitch and user pref
     optimizedGear = myGears.optimizeGear(pitchData);
@@ -143,6 +155,23 @@ void loop()
     // print useful information to computer - for debugging
     Serial.print(" Pitch: ");
     Serial.print(pitchData);
+    Serial.println();
+    Serial.print(" desired power: ");
+    Serial.print(desiredPower);
+    Serial.println();
+    Serial.print(" desired cadence: ");
+    Serial.print(desiredCadence);
+    Serial.println();
+    Serial.print(" rider weight: ");
+    Serial.print(riderWeight);
+    Serial.println();
+    Serial.print(" bike weight: ");
+    Serial.print(bikeWeight);
+    Serial.println();
+    Serial.print(" frontal area: ");
+    Serial.print(frontalArea);
+    Serial.println();
+
 
 
   // delay(25);  
