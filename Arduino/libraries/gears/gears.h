@@ -9,6 +9,14 @@
 
 #define pi 3.14159265
 
+#define VEL_DIFF_MIN          (0.25f)     // mps
+#define VEL_LOW_START         (0.0f)      // mps
+#define VEL_HIGH_START        (100.0f)    // mps
+#define ERR_START             (1000.0f)   // unitless
+#define CADENCE_MIN_START     (1000.0f)   // rpm
+#define GEAR_MAX              (8)
+#define GEAR_MIN              (1)
+
 class gears {
 private:
 	

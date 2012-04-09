@@ -13,14 +13,11 @@ private:
 	int counter; // Keeps track of number of samples
 	float sumData; // Keeps track of sum of all samples
 
-	int desiredPower;
-	int desiredCadence;
-	int bikeWeight;
-	int riderWeight;
+	unsigned int desiredPower;
+	unsigned int desiredCadence;
+	unsigned int bikeWeight;
+	unsigned int riderWeight;
 	float frontalArea;
-
-
-
 
 public:
 	androidData(int bufferID);
@@ -30,13 +27,14 @@ public:
 	int getCounter(void);
 	float deserializeFloat(char* buf);
 	int deserializeInt(char* buf);
+   unsigned int deserializeUInt(char* buf);
 	void serialize(char* buf, int inp);
 	void serialize(char* buf, float inp);
 
-	int getDesiredPower();
-	int getDesiredCadence();
-	int getBikeWeight();
-	int getRiderWeight();
+	unsigned int getDesiredPower();
+	unsigned int getDesiredCadence();
+	unsigned int getBikeWeight();
+	unsigned int getRiderWeight();
 	float getFrontalArea();
 
 };
