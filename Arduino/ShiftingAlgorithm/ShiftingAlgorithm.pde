@@ -153,14 +153,14 @@ void loop()
        mph = mps*2.2369; // meters per second to mph conversion
        speed_int = int(mph);
        // Serial.println(mph);
-       Serial.print("speed int: ");
-       Serial.println(speed_int);
+       // Serial.print("speed int: ");
+       // Serial.println(speed_int);
        msg[0]= (byte)((speed_int & (int)0xFF00) >> 8);
        msg[1] = (byte)(speed_int & (int)0x00FF);
        msg[2] = byte(optimizedGear); // send current gear
        pedal_int = int(pedalData);
-       Serial.print("pedal int: ");
-       Serial.println(pedal_int);
+       // Serial.print("pedal int: ");
+       // Serial.println(pedal_int);
        msg[3] = (byte)((pedal_int & (int)0xFF00) >> 8); // send cadence
        msg[4] = (byte)(pedal_int & (int)0x00FF);
        acc.write(msg,5);
