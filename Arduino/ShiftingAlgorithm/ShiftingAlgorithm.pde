@@ -53,7 +53,7 @@ float bikeWeight = 0;
 float riderWeight = 0;
 float frontalArea = 0;
 
-byte msg[3];
+byte msg[16];
 
 void setup()
 {
@@ -91,6 +91,8 @@ void loop()
   float filt_mps;
   float mph;
   int prnt1;
+  int pedal_int;
+  int speed_int;
 
   tcur = millis();
   // measure parameters
@@ -148,12 +150,20 @@ void loop()
     if(acc.isConnected())
     {
        // Serial.println("sending Android speed data (mph): ");
-       mph = mps*2.2369;
+       mph = mps*2.2369; // meters per second to mph conversion
+       speed_int = int(mph);
        // Serial.println(mph);
-       msg[0]= byte(mph); // meters per second to mph conversion
-       msg[1] = byte(optimizedGear); // send current gear
-       msg[2] = byte(pedalData); // send cadence
-       acc.write(msg,3);
+       Serial.print("speed int: ");
+       Serial.println(speed_int);
+       msg[0]= (byte)((speed_int & (int)0xFF00) >> 8);
+       msg[1] = (byte)(speed_int & (int)0x00FF);
+       msg[2] = byte(optimizedGear); // send current gear
+       pedal_int = int(pedalData);
+       Serial.print("pedal int: ");
+       Serial.println(pedal_int);
+       msg[3] = (byte)((pedal_int & (int)0xFF00) >> 8); // send cadence
+       msg[4] = (byte)(pedal_int & (int)0x00FF);
+       acc.write(msg,5);
     }
     /*
  Serial.print("Millis after write: ");
