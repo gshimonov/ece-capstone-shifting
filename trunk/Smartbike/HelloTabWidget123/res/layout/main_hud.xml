@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+    
+    <TableLayout
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:stretchColumns="0|1"
+    	android:layout_gravity="left|center_horizontal|center_vertical">
+    
+    	<TableRow>
+			<TextView 
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content" 
+			    android:gravity="right"
+			    android:text="@string/Speed"
+			    android:textSize="30dp"/>
+			<TextView 
+				android:id="@+id/Speed"
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content" 
+			    android:text="@string/E_ntsup"
+			    android:textSize="30dp"
+			    android:layout_marginRight="40dp"/>
+			<TextView 
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content" 
+			    android:gravity="right"
+			    android:text="@string/MPH"
+			    android:textSize="30dp"/>
+    	</TableRow>
+    
+<!--     	<TableRow> -->
+<!-- 			<TextView  -->
+<!-- 			    android:layout_width="wrap_content"  -->
+<!-- 			    android:layout_height="wrap_content"  -->
+<!-- 			    android:gravity="right" -->
+<!-- 			    android:text="@string/Pit" -->
+<!-- 			    android:textSize="30dp"/> -->
+<!-- 			<TextView  -->
+<!-- 				android:id="@+id/pitch" -->
+<!-- 			    android:layout_width="wrap_content"  -->
+<!-- 			    android:layout_height="wrap_content"  -->
+<!-- 			    android:text="@string/E_ntsup" -->
+<!-- 			    android:textSize="30dp"/> -->
+<!--     	</TableRow> -->
+    
+    	<TableRow>
+			<TextView 
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content" 
+			    android:gravity="right"
+			    android:text="@string/Gear"
+			    android:textSize="30dp"/>
+			<TextView 
+				android:id="@+id/Gears"
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content" 
+			    android:text="@string/E_ntsup"
+			    android:textSize="30dp"/>
+    	</TableRow>
+    	
+    	<TableRow>
+			<TextView 
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content" 
+			    android:gravity="left"
+			    android:text="@string/Cadence"
+			    android:textSize="30dp"/>
+			<TextView 
+				android:id="@+id/Cadence"
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content" 
+			    android:text="@string/E_ntsup"
+			    android:textSize="30dp"
+			    android:layout_marginRight="40dp"/>
+			<TextView 
+			    android:layout_width="wrap_content" 
+			    android:layout_height="wrap_content" 
+			    android:gravity="right"
+			    android:text="@string/RPM"
+			    android:textSize="30dp"/>
+    	</TableRow>
+    	
+    
+    </TableLayout>
+    
+</merge>
